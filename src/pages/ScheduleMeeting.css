@@ -1,0 +1,92 @@
+/* ScheduleMeeting.css */
+
+/* --- GLOBAL ANIMATIONS --- */
+
+/* Fade In & Slide Up for sections appearing */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* Bounce for the success checkmark */
+@keyframes bounceSmall {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-bounce {
+  animation: bounceSmall 2s infinite;
+}
+
+/* Background Blobs (if not already global) */
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+/* --- SCROLLBAR UTILITIES --- */
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* --- INTERACTIVE ELEMENTS --- */
+
+/* Smooth transitions for all interactive elements */
+button, select, input, textarea {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Custom focus ring for inputs to match brand color */
+input:focus, select:focus, textarea:focus {
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); /* blue-100 equivalent */
+}
+
+/* Date Card Hover Effect */
+button:hover {
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: translateY(0px);
+}
+
+/* Disabled state specific styling */
+button:disabled {
+  transform: none;
+  pointer-events: none;
+}
+
+/* Sticky Summary Card positioning adjustment for mobile */
+@media (max-width: 1024px) {
+  .sticky {
+    position: relative;
+    top: 0;
+  }
+}

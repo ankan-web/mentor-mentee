@@ -1,0 +1,41 @@
+/* Inherit global animations (blob, float) from Onboarding.css */
+
+/* Custom scrollbar for the dashboard main area */
+main::-webkit-scrollbar {
+  width: 6px;
+}
+main::-webkit-scrollbar-track {
+  background: transparent;
+}
+main::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+main::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Glass card hover effects */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Navigation Item Active State Animation */
+@keyframes slideIn {
+  from { width: 0; opacity: 0; }
+  to { width: 100%; opacity: 1; }
+}
+
+/* Make sure the blobs from Onboarding.css are globally available or copied here */
+.animate-blob {
+  animation: blob 7s infinite;
+}
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
