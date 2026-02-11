@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   Send, 
   Paperclip, 
@@ -13,17 +14,39 @@ import {
   Calendar,
   AlertCircle,
   X,
-  Menu
+  Menu,
+  ChevronLeft,
+  Download,
+  Mic,
+  Smile,
+  Clock,
+  User,
+  MessageSquare,
+  BookOpen,
+  Target,
+  FileCode,
+  Video as VideoIcon,
+  GraduationCap
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 
 const ChatInterface = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [newMessage, setNewMessage] = useState('');
+  const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
   const messagesEndRef = useRef(null);
   
-  // Mock Current User
-//   const currentUser = { id: 'student', name: 'Ankan' };
+  // Mock Mentor Details
+  const mentorDetails = {
+    name: 'Dr. S. Chatterjee',
+    department: 'Computer Science Department',
+    designation: 'Professor',
+    rating: '4.8/5',
+    nextMeeting: 'Tomorrow, 2:00 PM',
+    status: 'online',
+    avatar: 'SC',
+    subjects: ['Database Management', 'Algorithms', 'Machine Learning']
+  };
 
   // Mock Messages Data
   const [messages, setMessages] = useState([
@@ -61,6 +84,14 @@ const ChatInterface = () => {
       time: '10:15 AM',
       status: 'read'
     },
+    {
+      id: 5,
+      sender: 'mentor',
+      type: 'text',
+      content: 'Also, remember to submit your mid-term progress report by Friday.',
+      time: '10:16 AM',
+      status: 'read'
+    },
   ]);
 
   const scrollToBottom = () => {
@@ -89,180 +120,427 @@ const ChatInterface = () => {
 
     // Simulate Auto-Reply (for demo)
     setTimeout(() => {
-        setMessages(prev => [...prev, {
-            id: prev.length + 1,
-            sender: 'mentor',
-            type: 'text',
-            content: 'Got it. Let\'s discuss this in our next meeting.',
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            status: 'read'
-        }]);
+      setMessages(prev => [...prev, {
+        id: prev.length + 1,
+        sender: 'mentor',
+        type: 'text',
+        content: 'Got it. Let\'s discuss this in our next meeting.',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        status: 'read'
+      }]);
     }, 2000);
   };
 
+  const handleFileUpload = (type) => {
+    // Handle file upload logic here
+    console.log(`Uploading ${type}`);
+    setShowAttachmentMenu(false);
+  };
+
   return (
-    <div className="flex h-screen bg-slate-50 relative overflow-hidden font-sans">
-      <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-      
-      <div className="flex flex-col h-screen flex-1 overflow-hidden">
-      {/* Background Blobs (Consistent with Dashboard) */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
-        <div className="absolute bottom-0 left-0 w-[40rem] h-[40rem] bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-100">
+      {/* Top Navigation Bar */}
+      <nav className="fixed top-0 left-0 right-0 h-20 bg-white/90 backdrop-blur-lg shadow-sm z-40 border-b border-gray-200">
+        <div className="px-6 py-4 h-full flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <button 
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition"
+            >
+              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+            
+            <Link to="/onboarding" className="flex items-center space-x-3">
+              <img 
+                src="/au_logo.png" 
+                alt="Adamas University" 
+                className="h-10 w-auto"
+              />
+              <div>
+                <h1 className="text-lg font-bold text-gray-800">Adamas University</h1>
+                <p className="text-sm text-blue-600">Mentor Chat</p>
+              </div>
+            </Link>
+          </div>
 
-      {/* --- CHAT HEADER --- */}
-      <header className="relative z-10 bg-white/80 backdrop-blur-xl border-b border-white/50 px-6 py-4 flex items-center justify-between shadow-sm">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="md:hidden p-2 text-slate-700 hover:bg-slate-100 rounded-lg transition inline-flex"
-          >
-            <Menu size={24} strokeWidth={2} />
-          </button>
-          <div className="relative">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
-              SC
+          <div className="flex items-center space-x-4">
+            <Link 
+              to="/onboarding"
+              className="hidden md:inline-flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span>Onboarding</span>
+            </Link>
+            
+            <div className="flex items-center space-x-3">
+              <div className="text-right hidden md:block">
+                <h3 className="font-semibold text-gray-800">Ankan Das</h3>
+                <p className="text-sm text-gray-500">CSE, 3rd Year</p>
+              </div>
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                AD
+              </div>
             </div>
-            <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-slate-800">Dr. S. Chatterjee</h2>
-            <p className="text-xs text-blue-600 font-medium">CSE Dept • Online</p>
           </div>
         </div>
+      </nav>
 
-        <div className="flex items-center gap-2">
-           <button 
-             onClick={() => window.location.href='/dashboard/schedule'}
-             className="hidden md:flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition text-sm font-semibold"
-           >
-             <Calendar size={18} /> Schedule Meeting
-           </button>
-           <button className="p-2 text-slate-400 hover:bg-slate-100 rounded-full transition">
-             <Search size={20} />
-           </button>
-           <button className="p-2 text-slate-400 hover:bg-slate-100 rounded-full transition">
-             <MoreVertical size={20} />
-           </button>
-        </div>
-      </header>
-      
+      <div className="flex pt-20">
+        {/* Sidebar */}
+        <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
-      {/* --- NOTICE BANNER --- */}
-      <div className="relative z-10 bg-amber-50 border-b border-amber-100 px-4 py-2 text-center">
-        <p className="text-xs text-amber-800 flex items-center justify-center gap-2 font-medium">
-          <AlertCircle size={14} />
-          This is an official academic channel. Chats may be monitored for quality assurance.
-        </p>
-      </div>
-
-      {/* --- MESSAGES AREA --- */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 relative z-10">
-        {/* Date Divider */}
-        <div className="flex justify-center">
-          <span className="bg-slate-200/50 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-slate-500">
-            Today
-          </span>
-        </div>
-
-        {messages.map((msg) => (
-          <div 
-            key={msg.id} 
-            className={`flex ${msg.sender === 'student' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div className={`
-              max-w-[85%] md:max-w-[60%] rounded-2xl p-4 shadow-sm relative group
-              ${msg.sender === 'student' 
-                ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-tr-none' 
-                : 'bg-white/80 backdrop-blur-md border border-white text-slate-800 rounded-tl-none'
-              }
-            `}>
-              
-              {/* File Attachment Styling */}
-              {msg.type === 'file' && (
-                <div className={`flex items-center gap-3 mb-3 p-3 rounded-xl ${msg.sender === 'student' ? 'bg-white/10' : 'bg-slate-50'}`}>
-                  <div className="w-10 h-10 bg-red-100 text-red-500 rounded-lg flex items-center justify-center shrink-0">
-                    <FileText size={20} />
+        {/* Main Content */}
+        <main className={`
+          flex-1 transition-all duration-300 min-h-screen
+          ${sidebarOpen ? 'lg:ml-72' : 'lg:ml-20'}
+          p-4 lg:p-8
+        `}>
+          <div className="max-w-6xl mx-auto">
+            {/* Chat Header */}
+            <div className="bg-white rounded-2xl shadow-lg mb-6 overflow-hidden">
+              <div className="p-6 border-b border-gray-100">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="relative">
+                      <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg">
+                        {mentorDetails.avatar}
+                      </div>
+                      <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-800">{mentorDetails.name}</h2>
+                      <p className="text-gray-600">{mentorDetails.designation}, {mentorDetails.department}</p>
+                      <div className="flex items-center gap-4 mt-2">
+                        <span className="flex items-center text-sm text-amber-600 font-medium">
+                          ⭐ {mentorDetails.rating}
+                        </span>
+                        <span className="flex items-center text-sm text-gray-500">
+                          <Clock className="w-3 h-3 mr-1" />
+                          Next: {mentorDetails.nextMeeting}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-1 overflow-hidden">
-                    <p className={`text-sm font-bold truncate ${msg.sender === 'student' ? 'text-white' : 'text-slate-800'}`}>{msg.fileName}</p>
-                    <p className={`text-xs ${msg.sender === 'student' ? 'text-blue-100' : 'text-slate-500'}`}>{msg.fileSize} • PDF</p>
+
+                  <div className="flex items-center gap-3">
+                    <button className="p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-all hover:-translate-y-0.5">
+                      <Phone className="w-5 h-5" />
+                    </button>
+                    <button className="p-3 bg-purple-50 text-purple-600 rounded-xl hover:bg-purple-100 transition-all hover:-translate-y-0.5">
+                      <Video className="w-5 h-5" />
+                    </button>
+                    <Link 
+                      to="/onboarding/schedule"
+                      className="hidden md:inline-flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2.5 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all hover:-translate-y-0.5 shadow-md"
+                    >
+                      <Calendar className="w-4 h-4" />
+                      <span>Schedule</span>
+                    </Link>
                   </div>
                 </div>
-              )}
-
-              {/* Text Content */}
-              <p className={`text-sm leading-relaxed ${msg.type === 'file' ? 'mb-1' : ''}`}>
-                {msg.content}
-              </p>
-
-              {/* Metadata (Time & Status) */}
-              <div className={`flex items-center justify-end gap-1 mt-1 text-[10px] ${msg.sender === 'student' ? 'text-blue-100' : 'text-slate-400'}`}>
-                <span>{msg.time}</span>
-                {msg.sender === 'student' && (
-                  <span>
-                    {msg.status === 'sent' && <Check size={12} />}
-                    {msg.status === 'delivered' && <CheckCheck size={12} />}
-                    {msg.status === 'read' && <CheckCheck size={12} className="text-blue-200" />}
-                  </span>
-                )}
               </div>
 
+              {/* Mentor Expertise */}
+              <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-semibold text-gray-700">Expertise:</span>
+                  {mentorDetails.subjects.map((subject, idx) => (
+                    <span key={idx} className="px-3 py-1 bg-white border border-blue-200 text-blue-700 text-xs font-medium rounded-full">
+                      {subject}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Chat Grid */}
+            <div className="grid lg:grid-cols-3 gap-6">
+              {/* Messages Column */}
+              <div className="lg:col-span-2">
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                  {/* Messages Header */}
+                  <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
+                    <div className="flex items-center space-x-2">
+                      <MessageSquare className="w-5 h-5 text-blue-600" />
+                      <h3 className="font-semibold text-gray-800">Messages</h3>
+                    </div>
+                    <div className="relative">
+                      <input 
+                        type="text" 
+                        placeholder="Search messages..." 
+                        className="pl-9 pr-4 py-2 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 w-48"
+                      />
+                      <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+                    </div>
+                  </div>
+
+                  {/* Messages Container */}
+                  <div className="h-[500px] overflow-y-auto p-4 space-y-6">
+                    {/* Date Divider */}
+                    <div className="flex justify-center">
+                      <span className="bg-gradient-to-r from-blue-50 to-blue-100 px-4 py-1.5 rounded-full text-xs font-semibold text-blue-700 border border-blue-200">
+                        Today • {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                      </span>
+                    </div>
+
+                    {messages.map((msg) => (
+                      <div 
+                        key={msg.id} 
+                        className={`flex ${msg.sender === 'student' ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div className={`
+                          max-w-[85%] rounded-2xl p-4 relative group transition-all duration-300
+                          ${msg.sender === 'student' 
+                            ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-tr-none shadow-lg' 
+                            : 'bg-gradient-to-r from-gray-50 to-white border border-gray-200 text-gray-800 rounded-tl-none shadow-sm'
+                          }
+                        `}>
+                          
+                          {/* Sender Info for Mentor Messages */}
+                          {msg.sender === 'mentor' && (
+                            <div className="flex items-center space-x-2 mb-2">
+                              <div className="w-6 h-6 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                {mentorDetails.avatar.charAt(0)}
+                              </div>
+                              <span className="text-xs font-semibold text-gray-700">{mentorDetails.name.split(' ')[0]}</span>
+                            </div>
+                          )}
+
+                          {/* File Attachment */}
+                          {msg.type === 'file' && (
+                            <div className={`mb-3 p-3 rounded-xl ${msg.sender === 'student' ? 'bg-white/10' : 'bg-blue-50 border border-blue-100'}`}>
+                              <div className="flex items-center gap-3">
+                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${msg.sender === 'student' ? 'bg-white/20' : 'bg-white'}`}>
+                                  <FileText className={`w-6 h-6 ${msg.sender === 'student' ? 'text-white' : 'text-blue-600'}`} />
+                                </div>
+                                <div className="flex-1 overflow-hidden">
+                                  <p className={`font-bold truncate ${msg.sender === 'student' ? 'text-white' : 'text-gray-800'}`}>
+                                    {msg.fileName}
+                                  </p>
+                                  <p className={`text-xs ${msg.sender === 'student' ? 'text-blue-100' : 'text-gray-500'}`}>
+                                    {msg.fileSize} • PDF
+                                  </p>
+                                </div>
+                                <button className={`p-2 rounded-lg ${msg.sender === 'student' ? 'hover:bg-white/20' : 'hover:bg-blue-100'}`}>
+                                  <Download className={`w-4 h-4 ${msg.sender === 'student' ? 'text-white' : 'text-blue-600'}`} />
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Message Content */}
+                          <p className={`leading-relaxed ${msg.type === 'file' ? 'mb-1' : ''} ${msg.sender === 'student' ? 'text-blue-50' : 'text-gray-700'}`}>
+                            {msg.content}
+                          </p>
+
+                          {/* Message Metadata */}
+                          <div className={`flex items-center justify-end mt-2 ${msg.sender === 'student' ? 'text-blue-200' : 'text-gray-400'}`}>
+                            <span className="text-xs">{msg.time}</span>
+                            {msg.sender === 'student' && (
+                              <span className="flex items-center ml-1">
+                                {msg.status === 'sent' && <Check className="w-3 h-3 ml-1" />}
+                                {msg.status === 'delivered' && <CheckCheck className="w-3 h-3 ml-1" />}
+                                {msg.status === 'read' && <CheckCheck className="w-3 h-3 ml-1 text-blue-300" />}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <div ref={messagesEndRef} />
+                  </div>
+
+                  {/* Message Input */}
+                  <div className="p-4 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                    <form onSubmit={handleSendMessage} className="relative">
+                      <div className="flex items-end gap-2">
+                        {/* Attachment Button */}
+                        <div className="relative">
+                          <button 
+                            type="button"
+                            onClick={() => setShowAttachmentMenu(!showAttachmentMenu)}
+                            className="p-3 bg-white border border-gray-300 text-gray-600 hover:text-blue-600 hover:border-blue-400 hover:bg-blue-50 rounded-xl transition-all hover:-translate-y-0.5"
+                          >
+                            <Paperclip className="w-5 h-5" />
+                          </button>
+                          
+                          {/* Attachment Menu */}
+                          {showAttachmentMenu && (
+                            <div className="absolute bottom-full mb-2 left-0 bg-white rounded-xl shadow-2xl border border-gray-200 p-2 w-48 z-50">
+                              <button 
+                                type="button"
+                                onClick={() => handleFileUpload('document')}
+                                className="w-full flex items-center space-x-3 px-3 py-2.5 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition text-left"
+                              >
+                                <FileText className="w-4 h-4" />
+                                <span className="text-sm font-medium">Document</span>
+                              </button>
+                              <button 
+                                type="button"
+                                onClick={() => handleFileUpload('image')}
+                                className="w-full flex items-center space-x-3 px-3 py-2.5 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition text-left"
+                              >
+                                <ImageIcon className="w-4 h-4" />
+                                <span className="text-sm font-medium">Image</span>
+                              </button>
+                              <button 
+                                type="button"
+                                onClick={() => handleFileUpload('code')}
+                                className="w-full flex items-center space-x-3 px-3 py-2.5 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition text-left"
+                              >
+                                <FileCode className="w-4 h-4" />
+                                <span className="text-sm font-medium">Code File</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Text Input */}
+                        <div className="flex-1 relative">
+                          <textarea
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSendMessage(e);
+                              }
+                            }}
+                            placeholder="Type your message here..."
+                            className="w-full p-4 bg-white border border-gray-300 rounded-xl focus:border-blue-400 focus:ring-2 focus:ring-blue-200 outline-none transition resize-none text-gray-800 placeholder-gray-400"
+                            rows="1"
+                            style={{ minHeight: '60px' }}
+                          />
+                          <div className="absolute right-3 bottom-3 flex items-center space-x-2">
+                            <button type="button" className="p-1.5 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50">
+                              <Smile className="w-5 h-5" />
+                            </button>
+                            <button type="button" className="p-1.5 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50">
+                              <Mic className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Send Button */}
+                        <button 
+                          type="submit"
+                          disabled={!newMessage.trim()}
+                          className={`
+                            p-3.5 rounded-xl transition-all duration-300 flex items-center justify-center
+                            ${newMessage.trim() 
+                              ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:-translate-y-0.5' 
+                              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            }
+                          `}
+                        >
+                          <Send className={`w-5 h-5 ${newMessage.trim() ? 'ml-0.5' : ''}`} />
+                        </button>
+                      </div>
+                      
+                      <div className="flex items-center justify-between mt-2 px-2">
+                        <p className="text-xs text-gray-500">
+                          Press <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-600">Enter</kbd> to send
+                        </p>
+                        <p className="text-xs text-blue-600 font-medium flex items-center">
+                          <AlertCircle className="w-3 h-3 mr-1" />
+                          Academic communication only
+                        </p>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Sidebar - Quick Actions */}
+              <div className="space-y-6">
+                {/* Quick Actions */}
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <h3 className="font-bold text-gray-800 mb-4 flex items-center">
+                    <Target className="w-5 h-5 text-blue-600 mr-2" />
+                    Quick Actions
+                  </h3>
+                  <div className="space-y-3">
+                    <Link 
+                      to="/onboarding/schedule"
+                      className="w-full flex items-center justify-between p-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl transition group"
+                    >
+                      <span className="font-medium">Schedule Meeting</span>
+                      <Calendar className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                    <button className="w-full flex items-center justify-between p-3 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-xl transition group">
+                      <span className="font-medium">Request Review</span>
+                      <BookOpen className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                    <button className="w-full flex items-center justify-between p-3 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-xl transition group">
+                      <span className="font-medium">Video Call</span>
+                      <VideoIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Recent Files */}
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <h3 className="font-bold text-gray-800 mb-4 flex items-center">
+                    <FileText className="w-5 h-5 text-pink-600 mr-2" />
+                    Shared Files
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center p-3 border border-gray-200 rounded-xl hover:border-blue-300 transition">
+                      <div className="w-10 h-10 bg-red-100 text-red-600 rounded-lg flex items-center justify-center mr-3">
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-800 text-sm">Project_Guidelines.pdf</p>
+                        <p className="text-xs text-gray-500">2.4 MB • Yesterday</p>
+                      </div>
+                      <button className="p-2 text-gray-400 hover:text-blue-600">
+                        <Download className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="flex items-center p-3 border border-gray-200 rounded-xl hover:border-blue-300 transition">
+                      <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mr-3">
+                        <FileCode className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-800 text-sm">Algorithm_Implementation.py</p>
+                        <p className="text-xs text-gray-500">12 KB • 2 days ago</p>
+                      </div>
+                      <button className="p-2 text-gray-400 hover:text-blue-600">
+                        <Download className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Guidelines */}
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-6">
+                  <h3 className="font-bold text-gray-800 mb-3 flex items-center">
+                    <AlertCircle className="w-5 h-5 text-blue-600 mr-2" />
+                    Chat Guidelines
+                  </h3>
+                  <ul className="space-y-2">
+                    <li className="flex items-start text-sm text-gray-700">
+                      <Check className="w-3 h-3 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                      <span>Be specific with your questions</span>
+                    </li>
+                    <li className="flex items-start text-sm text-gray-700">
+                      <Check className="w-3 h-3 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                      <span>Share files for better guidance</span>
+                    </li>
+                    <li className="flex items-start text-sm text-gray-700">
+                      <Check className="w-3 h-3 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                      <span>Schedule calls for complex topics</span>
+                    </li>
+                    <li className="flex items-start text-sm text-gray-700">
+                      <Check className="w-3 h-3 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                      <span>Allow 24-48 hrs for responses</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* --- INPUT AREA --- */}
-      <div className="relative z-10 p-4 bg-white/80 backdrop-blur-xl border-t border-white/50">
-        <form 
-          onSubmit={handleSendMessage}
-          className="max-w-4xl mx-auto flex items-end gap-2 bg-white rounded-3xl p-2 shadow-lg border border-slate-100 focus-within:ring-2 focus-within:ring-blue-100 transition-all"
-        >
-          {/* Attachment Button */}
-          <button type="button" className="p-3 text-slate-400 hover:text-blue-600 hover:bg-slate-50 rounded-full transition">
-            <Paperclip size={20} />
-          </button>
-          
-          {/* Text Input */}
-          <textarea
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSendMessage(e);
-              }
-            }}
-            placeholder="Type your message..."
-            className="flex-1 max-h-32 py-3 px-2 bg-transparent border-none outline-none text-sm text-slate-800 resize-none placeholder-slate-400"
-            rows="1"
-            style={{ minHeight: '44px' }} // prevent layout shift
-          />
-
-          {/* Send Button */}
-          <button 
-            type="submit"
-            disabled={!newMessage.trim()}
-            className={`
-              p-3 rounded-full transition-all duration-300 flex items-center justify-center
-              ${newMessage.trim() 
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30 transform hover:scale-105 active:scale-95' 
-                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-              }
-            `}
-          >
-            <Send size={20} className={newMessage.trim() ? 'ml-0.5' : ''} />
-          </button>
-        </form>
-        
-        <p className="text-center text-[10px] text-slate-400 mt-2">
-          Press Enter to send • Shift + Enter for new line
-        </p>
-      </div>
-
+        </main>
       </div>
     </div>
   );

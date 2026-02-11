@@ -9,17 +9,21 @@ import {
   Type,
   AlignLeft,
   Info,
-  Menu
+  Menu,
+  GraduationCap,
+  User,
+  Mail,
+  Phone,
+  MessageSquare
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
-import './ScheduleMeeting.css'; 
 
 const ScheduleMeeting = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [meetingType, setMeetingType] = useState('Academic Review');
-  const [mode, setMode] = useState('Offline'); 
+  const [mode, setMode] = useState('Offline');
   const [note, setNote] = useState('');
   const [isBooked, setIsBooked] = useState(false);
 
@@ -33,8 +37,9 @@ const ScheduleMeeting = () => {
       dates.push({
         day: date.toLocaleDateString('en-US', { weekday: 'short' }),
         date: date.getDate(),
+        month: date.toLocaleDateString('en-US', { month: 'short' }),
         fullDate: date,
-        available: [1, 3, 4, 5].includes(date.getDay()) 
+        available: ![0, 6].includes(date.getDay())
       });
     }
     return dates;
@@ -43,14 +48,17 @@ const ScheduleMeeting = () => {
   const dates = generateDates();
 
   const timeSlots = [
+    { time: '09:00 AM', status: 'available' },
     { time: '10:00 AM', status: 'available' },
-    { time: '10:30 AM', status: 'busy' }, 
+    { time: '10:30 AM', status: 'busy' },
     { time: '11:00 AM', status: 'available' },
     { time: '11:30 AM', status: 'available' },
+    { time: '12:00 PM', status: 'busy' },
     { time: '02:00 PM', status: 'available' },
-    { time: '02:30 PM', status: 'busy' },
+    { time: '02:30 PM', status: 'available' },
     { time: '03:00 PM', status: 'available' },
-    { time: '03:30 PM', status: 'available' },
+    { time: '03:30 PM', status: 'busy' },
+    { time: '04:00 PM', status: 'available' },
   ];
 
   const handleBook = () => {
@@ -58,280 +66,494 @@ const ScheduleMeeting = () => {
     setIsBooked(true);
   };
 
+  const handleReset = () => {
+    setIsBooked(false);
+    setSelectedDate(null);
+    setSelectedTime(null);
+    setNote('');
+    setMeetingType('Academic Review');
+    setMode('Offline');
+  };
+
   if (isBooked) {
     return (
-      <div className="flex min-h-screen bg-slate-50">
-        <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-        <div className="flex-1 flex items-center justify-center p-4">
-          <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 max-w-md w-full text-center shadow-2xl border border-white animate-fadeIn">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600 animate-bounce">
-              <CheckCircle size={40} />
-            </div>
-            <h2 className="text-2xl font-bold text-slate-800 mb-2">Appointment Confirmed!</h2>
-            <p className="text-slate-500 mb-6">
-              Your request has been sent to <strong>Dr. S. Chatterjee</strong>.
-            </p>
-            
-            <div className="bg-slate-50 rounded-xl p-4 text-left space-y-3 mb-8 border border-slate-100">
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Date</span>
-                <span className="font-bold text-slate-800">
-                  {selectedDate?.fullDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Time</span>
-                <span className="font-bold text-slate-800">{selectedTime}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Mode</span>
-                <span className="font-bold text-blue-600 flex items-center gap-1">
-                  {mode === 'Online' ? <Video size={14}/> : <MapPin size={14}/>} {mode}
-                </span>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100">
+        <nav className="fixed top-0 left-0 right-0 h-20 bg-white/90 backdrop-blur-lg shadow-sm z-40 border-b border-gray-200">
+          <div className="px-6 py-4 h-full flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+              
+              <div className="flex items-center space-x-3">
+                <img 
+                  src="/au_logo.png" 
+                  alt="Adamas University" 
+                  className="h-10 w-auto"
+                />
+                <div>
+                  <h1 className="text-lg font-bold text-gray-800">Adamas University</h1>
+                  <p className="text-sm text-blue-600">Schedule Meeting</p>
+                </div>
               </div>
             </div>
-
-            <button 
-              onClick={() => window.location.href = '/dashboard'}
-              className="w-full bg-slate-900 text-white py-3 rounded-xl font-semibold hover:bg-slate-800 transition"
-            >
-              Back to Dashboard
-            </button>
           </div>
+        </nav>
+
+        <div className="flex pt-20">
+          <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+          
+          <main className={`
+            flex-1 transition-all duration-300 min-h-screen
+            ${sidebarOpen ? 'lg:ml-72' : 'lg:ml-20'}
+            flex items-center justify-center p-4
+          `}>
+            <div className="max-w-md w-full">
+              <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+                <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <CheckCircle className="w-10 h-10 text-white" />
+                </div>
+                
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">Meeting Scheduled!</h2>
+                <p className="text-gray-600 mb-6">
+                  Your meeting with <span className="font-semibold">Dr. S. Chatterjee</span> has been confirmed.
+                </p>
+                
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5 mb-8 text-left">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 text-sm">
+                      <Calendar className="w-4 h-4 text-blue-600" />
+                      <span className="text-gray-700">
+                        {selectedDate?.fullDate.toLocaleDateString('en-US', { 
+                          weekday: 'long', 
+                          month: 'long', 
+                          day: 'numeric', 
+                          year: 'numeric' 
+                        })}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <Clock className="w-4 h-4 text-blue-600" />
+                      <span className="text-gray-700">{selectedTime}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      {mode === 'Online' ? (
+                        <Video className="w-4 h-4 text-blue-600" />
+                      ) : (
+                        <MapPin className="w-4 h-4 text-blue-600" />
+                      )}
+                      <span className="text-gray-700">{mode} Meeting</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <Type className="w-4 h-4 text-blue-600" />
+                      <span className="text-gray-700">{meetingType}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <button 
+                    onClick={handleReset}
+                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition shadow-lg"
+                  >
+                    Schedule Another Meeting
+                  </button>
+                  <button 
+                    onClick={() => window.location.href = '/dashboard'}
+                    className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition"
+                  >
+                    Back to Dashboard
+                  </button>
+                </div>
+              </div>
+            </div>
+          </main>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-sans text-slate-800 relative">
-      <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-      
-      {/* Background Elements - Fixed position so they don't scroll away */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50/30">
+      {/* Top Navigation Bar */}
+      <nav className="fixed top-0 left-0 right-0 h-20 bg-white/90 backdrop-blur-lg shadow-sm z-40 border-b border-gray-200">
+        <div className="px-6 py-4 h-full flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <button 
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            
+            <div className="flex items-center space-x-3">
+              <img 
+                src="/au_logo.png" 
+                alt="Adamas University" 
+                className="h-10 w-auto"
+              />
+              <div>
+                <h1 className="text-lg font-bold text-gray-800">Adamas University</h1>
+                <p className="text-sm text-blue-600">Schedule Meeting</p>
+              </div>
+            </div>
+          </div>
 
-      <div className="flex-1 w-full relative z-10 p-4 md:p-8">
-        
-        {/* Header with Menu Button */}
-        <div className="flex items-center gap-4 mb-6 md:mb-8">
-          <button 
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="md:hidden p-2 bg-white rounded-lg shadow-sm text-slate-700 hover:bg-slate-50 transition z-50"
-          >
-            <Menu size={24} />
-          </button>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Schedule Meeting</h1>
-            <p className="text-sm md:text-base text-slate-500">Book a slot with your mentor</p>
+          <div className="flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full">
+              <GraduationCap className="w-4 h-4" />
+              <span className="font-medium">Dr. S. Chatterjee • Mentor</span>
+            </div>
           </div>
         </div>
+      </nav>
 
-        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 pb-20 lg:pb-0">
-          
-          {/* --- LEFT COLUMN: SELECTION --- */}
-          <div className="lg:col-span-2 space-y-6">
+      <div className="flex pt-20">
+        <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+
+        {/* Main Content */}
+        <main className={`
+          flex-1 transition-all duration-300 min-h-screen
+          ${sidebarOpen ? 'lg:ml-72' : 'lg:ml-20'}
+          p-6 lg:p-8
+        `}>
+          <div className="max-w-7xl mx-auto">
             
-            {/* 1. Date Selection */}
-            <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-3xl p-5 md:p-6 shadow-lg">
-              <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <Calendar className="text-blue-600" size={20} /> Select Date
-              </h3>
-              
-              <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide snap-x">
-                {dates.map((date, idx) => (
-                  <button
-                    key={idx}
-                    disabled={!date.available}
-                    onClick={() => setSelectedDate(date)}
-                    className={`
-                      flex flex-col items-center justify-center min-w-[4.5rem] h-20 rounded-2xl border transition-all duration-300 snap-center
-                      ${!date.available ? 'opacity-40 bg-slate-100 border-transparent cursor-not-allowed' : 'cursor-pointer hover:border-blue-300 hover:bg-white'}
-                      ${selectedDate?.date === date.date 
-                        ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white border-transparent shadow-lg shadow-blue-500/30 scale-105' 
-                        : 'bg-white border-slate-100 text-slate-600'
-                      }
-                    `}
-                  >
-                    <span className="text-xs font-medium uppercase mb-1 opacity-80">{date.day}</span>
-                    <span className="text-xl font-bold">{date.date}</span>
-                  </button>
-                ))}
-              </div>
-              {!selectedDate && <p className="text-xs text-slate-400 mt-2">* Greyed out dates are unavailable</p>}
-            </div>
-
-            {/* 2. Time Selection */}
-            <div className={`
-              bg-white/70 backdrop-blur-xl border border-white/50 rounded-3xl p-5 md:p-6 shadow-lg transition-all duration-500
-              ${selectedDate ? 'opacity-100 translate-y-0' : 'opacity-50 translate-y-4 pointer-events-none grayscale'}
-            `}>
-              <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <Clock className="text-purple-600" size={20} /> Select Time
-              </h3>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {timeSlots.map((slot, idx) => (
-                  <button
-                    key={idx}
-                    disabled={slot.status === 'busy'}
-                    onClick={() => setSelectedTime(slot.time)}
-                    className={`
-                      py-3 px-2 md:px-4 rounded-xl text-sm font-semibold border transition-all duration-200
-                      ${slot.status === 'busy' 
-                        ? 'bg-slate-50 text-slate-300 border-transparent cursor-not-allowed line-through' 
-                        : 'hover:border-purple-300 hover:bg-white'
-                      }
-                      ${selectedTime === slot.time 
-                        ? 'bg-gradient-to-br from-purple-600 to-purple-700 text-white border-transparent shadow-md' 
-                        : 'bg-white border-slate-100 text-slate-600'
-                      }
-                    `}
-                  >
-                    {slot.time}
-                  </button>
-                ))}
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                  Schedule a <span className="text-blue-700">Meeting</span>
+                </h1>
+                <p className="text-gray-600">
+                  Book a one-on-one session with your academic mentor
+                </p>
               </div>
             </div>
 
-            {/* 3. Details Form */}
-            <div className={`
-              bg-white/70 backdrop-blur-xl border border-white/50 rounded-3xl p-5 md:p-6 shadow-lg transition-all duration-500 delay-100
-              ${selectedTime ? 'opacity-100 translate-y-0' : 'opacity-50 translate-y-4 pointer-events-none grayscale'}
-            `}>
-              <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <AlignLeft className="text-pink-600" size={20} /> Meeting Details
-              </h3>
+            {/* Mentor Profile Card */}
+            <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-1 shadow-xl mb-8">
+              <div className="bg-white rounded-xl p-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg">
+                      SC
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-800">Dr. S. Chatterjee</h2>
+                      <p className="text-gray-600">Professor, Computer Science Department</p>
+                      <div className="flex items-center gap-4 mt-2">
+                        <span className="flex items-center text-sm text-amber-600">
+                          ⭐ 4.8/5 (42 reviews)
+                        </span>
+                        <span className="flex items-center text-sm text-green-600">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                          Available Today
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <button className="p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition">
+                      <MessageSquare className="w-5 h-5" />
+                    </button>
+                    <button className="p-3 bg-purple-50 text-purple-600 rounded-xl hover:bg-purple-100 transition">
+                      <Mail className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Type Selection */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-slate-700">Purpose</label>
-                    <div className="relative">
-                      <select 
-                        value={meetingType}
-                        onChange={(e) => setMeetingType(e.target.value)}
-                        className="w-full appearance-none bg-white border border-slate-200 text-slate-700 py-3 px-4 pr-8 rounded-xl leading-tight focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              
+              {/* Left Column - Selection */}
+              <div className="lg:col-span-2 space-y-6">
+                
+                {/* Date Selection */}
+                <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-lg">
+                  <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-blue-600" />
+                    Select Date
+                  </h3>
+                  
+                  <div className="grid grid-cols-7 gap-2">
+                    {dates.map((date, idx) => (
+                      <button
+                        key={idx}
+                        disabled={!date.available}
+                        onClick={() => setSelectedDate(date)}
+                        className={`
+                          flex flex-col items-center p-3 rounded-xl border transition-all duration-300
+                          ${!date.available 
+                            ? 'opacity-40 bg-gray-50 border-gray-200 cursor-not-allowed' 
+                            : 'hover:border-blue-300 hover:shadow-md'
+                          }
+                          ${selectedDate?.date === date.date 
+                            ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white border-transparent shadow-lg scale-105' 
+                            : 'bg-white border-gray-200 text-gray-700'
+                          }
+                        `}
                       >
-                        <option>Academic Review</option>
-                        <option>Project Guidance</option>
-                        <option>Career Counseling</option>
-                        <option>Attendance Issue</option>
-                        <option>Personal Issue</option>
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
-                        <ChevronRight className="rotate-90" size={16} />
+                        <span className="text-xs font-medium uppercase mb-1">
+                          {date.day}
+                        </span>
+                        <span className="text-xl font-bold">{date.date}</span>
+                        <span className="text-xs opacity-80">{date.month}</span>
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {!selectedDate && (
+                    <p className="text-xs text-gray-500 mt-3 flex items-center gap-1">
+                      <Info className="w-3 h-3" />
+                      Weekends are unavailable
+                    </p>
+                  )}
+                </div>
+
+                {/* Time Selection */}
+                <div className={`
+                  bg-white rounded-2xl border border-gray-200 p-6 shadow-lg transition-all duration-500
+                  ${selectedDate ? 'opacity-100' : 'opacity-50 pointer-events-none grayscale'}
+                `}>
+                  <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-purple-600" />
+                    Select Time Slot
+                  </h3>
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {timeSlots.map((slot, idx) => (
+                      <button
+                        key={idx}
+                        disabled={slot.status === 'busy'}
+                        onClick={() => setSelectedTime(slot.time)}
+                        className={`
+                          py-3 px-2 rounded-xl text-sm font-medium border transition-all duration-200
+                          ${slot.status === 'busy' 
+                            ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed line-through' 
+                            : 'hover:border-purple-300 hover:shadow-md'
+                          }
+                          ${selectedTime === slot.time 
+                            ? 'bg-gradient-to-br from-purple-600 to-purple-700 text-white border-transparent shadow-md' 
+                            : 'bg-white border-gray-200 text-gray-600'
+                          }
+                        `}
+                      >
+                        {slot.time}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  <div className="flex items-center gap-4 mt-4 text-xs text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      Available
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                      Booked
+                    </span>
+                  </div>
+                </div>
+
+                {/* Meeting Details */}
+                <div className={`
+                  bg-white rounded-2xl border border-gray-200 p-6 shadow-lg transition-all duration-500
+                  ${selectedTime ? 'opacity-100' : 'opacity-50 pointer-events-none grayscale'}
+                `}>
+                  <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <AlignLeft className="w-5 h-5 text-pink-600" />
+                    Meeting Details
+                  </h3>
+
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Purpose */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">
+                          Purpose of Meeting
+                        </label>
+                        <div className="relative">
+                          <select 
+                            value={meetingType}
+                            onChange={(e) => setMeetingType(e.target.value)}
+                            className="w-full appearance-none bg-white border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
+                          >
+                            <option>Academic Review</option>
+                            <option>Project Guidance</option>
+                            <option>Career Counseling</option>
+                            <option>Attendance Issue</option>
+                            <option>Personal Mentoring</option>
+                            <option>Research Discussion</option>
+                          </select>
+                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                            <ChevronRight className="rotate-90 w-4 h-4" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Mode */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">
+                          Meeting Mode
+                        </label>
+                        <div className="flex bg-gray-100 p-1 rounded-xl">
+                          <button 
+                            onClick={() => setMode('Offline')}
+                            className={`
+                              flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all
+                              ${mode === 'Offline' 
+                                ? 'bg-white text-gray-800 shadow-sm' 
+                                : 'text-gray-500 hover:text-gray-700'
+                              }
+                            `}
+                          >
+                            <MapPin className="w-4 h-4" />
+                            In-Person
+                          </button>
+                          <button 
+                            onClick={() => setMode('Online')}
+                            className={`
+                              flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all
+                              ${mode === 'Online' 
+                                ? 'bg-white text-blue-600 shadow-sm' 
+                                : 'text-gray-500 hover:text-gray-700'
+                              }
+                            `}
+                          >
+                            <Video className="w-4 h-4" />
+                            Online
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Notes */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">
+                        Additional Notes
+                      </label>
+                      <textarea 
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                        placeholder="e.g., I want to discuss my project proposal and get feedback on the implementation..."
+                        className="w-full bg-white border border-gray-200 text-gray-700 py-3 px-4 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition resize-none h-24"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column - Summary */}
+              <div className="lg:col-span-1">
+                <div className="lg:sticky lg:top-8 bg-white rounded-2xl border border-gray-200 p-6 shadow-xl">
+                  <h3 className="text-xl font-bold text-gray-800 mb-6">
+                    Booking Summary
+                  </h3>
+
+                  <div className="space-y-4 mb-6">
+                    <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white font-bold">
+                          SC
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Mentor</p>
+                          <p className="font-semibold text-gray-800">Dr. S. Chatterjee</p>
+                          <p className="text-xs text-blue-600">CSE Department</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-gray-100 pt-4">
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-sm text-gray-600 flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          Date
+                        </span>
+                        <span className={`font-medium text-sm ${selectedDate ? 'text-gray-800' : 'text-gray-400'}`}>
+                          {selectedDate 
+                            ? selectedDate.fullDate.toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric',
+                                year: 'numeric'
+                              }) 
+                            : 'Not selected'}
+                        </span>
+                      </div>
+                      
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-sm text-gray-600 flex items-center gap-2">
+                          <Clock className="w-4 h-4" />
+                          Time
+                        </span>
+                        <span className={`font-medium text-sm ${selectedTime ? 'text-gray-800' : 'text-gray-400'}`}>
+                          {selectedTime || 'Not selected'}
+                        </span>
+                      </div>
+                      
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-sm text-gray-600 flex items-center gap-2">
+                          <Type className="w-4 h-4" />
+                          Purpose
+                        </span>
+                        <span className="font-medium text-sm text-gray-800 text-right">
+                          {meetingType}
+                        </span>
+                      </div>
+                      
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600 flex items-center gap-2">
+                          {mode === 'Online' ? <Video className="w-4 h-4" /> : <MapPin className="w-4 h-4" />}
+                          Mode
+                        </span>
+                        <span className={`font-medium text-sm ${mode === 'Online' ? 'text-blue-600' : 'text-gray-800'}`}>
+                          {mode}
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Mode Selection */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-slate-700">Preferred Mode</label>
-                    <div className="flex bg-slate-100 p-1 rounded-xl">
-                      <button 
-                        onClick={() => setMode('Offline')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'Offline' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                      >
-                        <MapPin size={16} /> In-Person
-                      </button>
-                      <button 
-                        onClick={() => setMode('Online')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'Online' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                      >
-                        <Video size={16} /> Online
-                      </button>
+                  <div className="bg-blue-50 rounded-xl p-4 mb-6">
+                    <div className="flex items-start gap-3">
+                      <Info className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs text-blue-700">
+                          A calendar invitation will be sent to your university email after confirmation.
+                        </p>
+                        {mode === 'Online' && (
+                          <p className="text-xs text-blue-700 mt-1">
+                            Google Meet link will be generated automatically.
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Notes */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-700">Additional Note</label>
-                  <textarea 
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                    placeholder="e.g. I want to discuss my marks in DBMS..."
-                    className="w-full bg-white border border-slate-200 text-slate-700 py-3 px-4 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition resize-none h-24"
-                  />
+                  <button 
+                    onClick={handleBook}
+                    disabled={!selectedDate || !selectedTime}
+                    className={`
+                      w-full py-4 rounded-xl font-semibold text-lg shadow-lg transition-all duration-300 flex items-center justify-center gap-2
+                      ${selectedDate && selectedTime 
+                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 hover:shadow-xl hover:-translate-y-0.5' 
+                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      }
+                    `}
+                  >
+                    Confirm Booking
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* --- RIGHT COLUMN: SUMMARY --- */}
-          <div className="lg:col-span-1">
-            <div className="lg:sticky lg:top-8 bg-white/80 backdrop-blur-xl border border-white rounded-3xl p-6 shadow-2xl">
-              <h3 className="text-lg font-bold text-slate-900 mb-6">Booking Summary</h3>
-
-              {/* Mentor Info */}
-              <div className="flex items-center gap-3 mb-6 pb-6 border-b border-slate-100">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md shrink-0">
-                  SC
-                </div>
-                <div>
-                  <p className="text-sm text-slate-500 font-medium">Mentor</p>
-                  <p className="font-bold text-slate-800">Dr. S. Chatterjee</p>
-                </div>
-              </div>
-
-              {/* Details */}
-              <div className="space-y-4 mb-8">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 text-sm flex items-center gap-2"><Calendar size={16}/> Date</span>
-                  <span className={`font-semibold text-sm ${selectedDate ? 'text-slate-800' : 'text-slate-400 italic'}`}>
-                    {selectedDate ? selectedDate.fullDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Select Date'}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 text-sm flex items-center gap-2"><Clock size={16}/> Time</span>
-                  <span className={`font-semibold text-sm ${selectedTime ? 'text-slate-800' : 'text-slate-400 italic'}`}>
-                    {selectedTime || 'Select Time'}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 text-sm flex items-center gap-2"><Type size={16}/> Type</span>
-                  <span className="font-semibold text-sm text-slate-800 text-right truncate ml-4">{meetingType}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                   <span className="text-slate-500 text-sm flex items-center gap-2">
-                     {mode === 'Online' ? <Video size={16}/> : <MapPin size={16}/>} Mode
-                   </span>
-                  <span className={`font-semibold text-sm ${mode === 'Online' ? 'text-blue-600' : 'text-slate-800'}`}>
-                    {mode}
-                  </span>
-                </div>
-              </div>
-
-              {/* Info Box */}
-              <div className="bg-blue-50 rounded-xl p-3 mb-6 flex items-start gap-2">
-                <Info size={16} className="text-blue-600 mt-0.5 shrink-0" />
-                <p className="text-xs text-blue-700 leading-relaxed">
-                  A calendar invite will be sent to your university email upon confirmation.
-                </p>
-              </div>
-
-              {/* Confirm Button */}
-              <button 
-                onClick={handleBook}
-                disabled={!selectedDate || !selectedTime}
-                className={`
-                  w-full py-4 rounded-xl font-bold text-lg shadow-lg transition-all duration-300 flex items-center justify-center gap-2
-                  ${selectedDate && selectedTime 
-                    ? 'bg-slate-900 text-white hover:bg-slate-800 hover:shadow-xl transform hover:-translate-y-1' 
-                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                  }
-                `}
-              >
-                Confirm Booking <ChevronRight size={20} />
-              </button>
-            </div>
-          </div>
-
-        </div>
+        </main>
       </div>
     </div>
   );

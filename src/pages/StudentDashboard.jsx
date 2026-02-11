@@ -1,102 +1,505 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // Use Link instead of state
-import { Search, Bell, Calendar, BookOpen, Menu } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import api from '../services/api';
+import {
+  Search,
+  Bell,
+  Calendar,
+  BookOpen,
+  Menu,
+  X,
+  ChevronRight,
+  MessageSquare,
+  Target,
+  TrendingUp,
+  Award,
+  Clock,
+  Users,
+  BarChart3,
+  FileText,
+  Video,
+  Download,
+  CheckCircle,
+  AlertCircle // Added for attendance warning
+} from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 
 const DashboardHome = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [loading, setLoading] = useState(true);
+
+  // 1. Expanded State to store detailed User Data
+  const [user, setUser] = useState({
+    name: localStorage.getItem('userName') || 'Student',
+    department: '',
+    role: 'student',
+    registration_no: '',
+    roll_no: '',
+    semester: '',
+    attendance: {
+      percentage: 0,
+      attended: 0,
+      total: 0,
+      absent: 0
+    }
+  });
+
+  // 2. Fetch Data from Backend
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await api.get('/users/profile');
+        // Assuming backend sends structure: 
+        // { name, department, student_profile: { roll_no, semester, attendance: { percentage, attended, total, absent } } }
+
+        const data = response.data;
+        const profile = data.student_profile || {};
+        const att = profile.attendance || {};
+        setUser({
+          name: data.name || 'Student',
+          department: data.department || 'Computer Science',
+          role: data.role || 'student',
+
+          // MAP 'roll_no' from DB to 'registration_no' in Frontend state
+          registration_no: profile.roll_no || 'Not Available',
+
+          // Use 'semester' which we just added to the Schema
+          semester: profile.semester || 'IV',
+
+          attendance: {
+            percentage: att.percentage || 0,
+            attended: att.attended || 0,
+            total: att.total || 0,
+            absent: (att.total || 0) - (att.attended || 0)
+          }
+        });
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const getInitials = (name) => {
+    return name
+      ? name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+      : 'U';
+  };
+
+  // 3. Dynamic Stats Calculation
+  const getAttendanceStatus = (pct) => {
+    if (pct >= 85) return { status: 'good', color: 'green', sub: 'Excellent!' };
+    if (pct >= 75) return { status: 'neutral', color: 'blue', sub: 'Good Standing' };
+    return { status: 'warning', color: 'amber', sub: 'Low Attendance!' };
+  };
+
+  const attStatus = getAttendanceStatus(user.attendance.percentage);
+
   const stats = [
-    { label: "Attendance", value: "78%", status: "warning", sub: "Requires 85%", color: "amber" },
-    { label: "CGPA", value: "8.4", status: "good", sub: "Top 10% of class", color: "blue" },
-    { label: "Credits", value: "18/24", status: "neutral", sub: "Current Sem", color: "purple" }
+    {
+      label: "Attendance",
+      value: `${user.attendance.percentage}%`,
+      status: attStatus.status,
+      sub: attStatus.sub,
+      color: attStatus.color,
+      icon: <Calendar className="w-6 h-6" />
+    },
+    {
+      // Replaced CGPA with Class Stats
+      label: "Classes Attended",
+      value: `${user.attendance.attended} / ${user.attendance.total}`,
+      status: 'neutral',
+      sub: `${user.attendance.absent} Classes Missed`,
+      color: "blue",
+      icon: <BookOpen className="w-6 h-6" /> // Changed Icon
+    },
+    {
+      label: "Current Semester",
+      value: user.semester || "N/A",
+      status: "neutral",
+      sub: "Academic Session",
+      color: "purple",
+      icon: <Award className="w-6 h-6" />
+    }
   ];
 
+  // ... (Keep upcomingClasses, pendingTasks, recentActivities as is for now)
+  const upcomingClasses = [
+    { time: "10:00 AM", title: "Database Management", room: "Room 304", professor: "Prof. Roy", status: "upcoming" },
+    { time: "02:00 PM", title: "Data Structures Lab", room: "Lab 205", professor: "Dr. Sharma", status: "lab" },
+    { time: "04:30 PM", title: "Soft Skills Workshop", room: "Auditorium", professor: "Ms. Gupta", status: "workshop" }
+  ];
+
+  const pendingTasks = [
+    { title: "Submit DBMS Assignment", due: "Tomorrow", priority: "high", subject: "Database Management" },
+    { title: "Prepare for Mid-Terms", due: "Next Week", priority: "medium", subject: "Operating Systems" },
+    { title: "Project Documentation", due: "3 days", priority: "medium", subject: "Software Engineering" }
+  ];
+
+  const recentActivities = [
+    { action: "Mentor session completed", time: "2 hours ago", type: "mentor", mentor: "Dr. Chatterjee" },
+    { action: "Assignment submitted", time: "Yesterday", type: "submission", subject: "DBMS" },
+    { action: "Course material accessed", time: "2 days ago", type: "resource", resource: "Algorithms PDF" }
+  ];
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading Dashboard...</div>;
+  }
+
   return (
-    <div className="flex h-screen bg-white">
-      <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-      
-      <div className="flex-1 overflow-y-auto p-4 md:p-8">
-      <div className="space-y-8 animate-fadeIn max-w-7xl mx-auto">
-      {/* Top Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="md:hidden p-2 text-slate-700 hover:bg-slate-100 rounded-lg transition inline-flex"
-          >
-            <Menu size={24} strokeWidth={2} />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800">Good Morning, Ankan! 👋</h1>
-            <p className="text-slate-500 text-sm">Here's what's happening with your academics today.</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center bg-white/60 backdrop-blur-md px-4 py-2.5 rounded-xl border border-white shadow-sm w-64">
-            <Search size={18} className="text-slate-400 mr-2" />
-            <input type="text" placeholder="Search..." className="bg-transparent outline-none text-sm w-full" />
-          </div>
-          <button className="relative p-3 bg-white/60 backdrop-blur-md rounded-xl border border-white shadow-sm hover:shadow-md transition">
-            <Bell size={20} className="text-slate-600" />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-          </button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-amber-50/30">
+      {/* Top Navigation Bar */}
+      <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-lg shadow-sm z-40 border-b border-gray-200">
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+              >
+                {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {stats.map((stat, idx) => (
-          <div key={idx} className="bg-white/60 backdrop-blur-xl border border-white/50 p-6 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300">
-            <h3 className="text-4xl font-bold text-slate-800 mb-1">{stat.value}</h3>
-            <p className="text-slate-500 font-medium mb-2">{stat.label}</p>
-            <div className={`inline-flex items-center text-xs font-bold px-2 py-1 rounded-full bg-${stat.color}-50 text-${stat.color}-600`}>
-              {stat.sub}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Widgets Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Mentor Card */}
-        <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-1 shadow-xl">
-          <div className="bg-white/95 backdrop-blur-xl rounded-[22px] p-6 h-full flex flex-col justify-between">
-            <div>
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-bold text-slate-800">Your Mentor</h3>
-                <span className="flex items-center gap-1 text-green-600 bg-green-50 px-3 py-1 rounded-full text-xs font-bold">Online</span>
+              <div className="flex items-center space-x-3">
+                <img
+                  src="/au_logo.png"
+                  alt="Adamas University"
+                  className="h-10 w-auto"
+                />
+                <div>
+                  <h1 className="text-lg font-bold text-gray-800">Adamas University</h1>
+                  <p className="text-sm text-blue-600">Student Dashboard</p>
+                </div>
               </div>
-              <h4 className="text-xl font-bold text-slate-900">Dr. S. Chatterjee</h4>
-              <p className="text-slate-500 text-sm">Computer Science Dept.</p>
             </div>
-            {/* Link to Chat Page */}
-            <Link 
-              to="/dashboard/chat"
-              className="mt-6 block text-center w-full bg-slate-900 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:bg-slate-800 transition"
-            >
-              Send Message
-            </Link>
-          </div>
-        </div>
 
-        {/* Up Next Card */}
-        <div className="bg-white/60 backdrop-blur-xl border border-white/50 rounded-3xl p-6 shadow-lg">
-          <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <Calendar size={20} className="text-blue-600" /> Up Next
-          </h3>
-          <div className="space-y-4">
-            <div className="p-4 rounded-2xl bg-white/80 border border-white shadow-sm flex justify-between items-center">
-              <div>
-                <p className="text-xs font-bold text-blue-600 mb-1">10:00 AM</p>
-                <h4 className="font-bold text-slate-800">Database Management</h4>
-                <p className="text-xs text-slate-500">Room 304 • Prof. Roy</p>
+            <div className="flex items-center space-x-4">
+              <div className="hidden lg:flex items-center bg-white/60 backdrop-blur-sm px-4 py-2.5 rounded-xl border border-gray-200 shadow-sm w-80">
+                <Search className="w-4 h-4 text-gray-400 mr-3" />
+                <input
+                  type="text"
+                  placeholder="Search courses, materials, mentors..."
+                  className="bg-transparent outline-none text-sm w-full placeholder-gray-400"
+                />
               </div>
-              <button className="text-slate-400 hover:text-blue-600"><BookOpen size={20}/></button>
+
+              <button className="relative p-2.5 bg-white/60 backdrop-blur-sm rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all">
+                <Bell className="w-5 h-5 text-gray-600" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+              </button>
+
+              <div className="flex items-center space-x-3">
+                <div className="text-right hidden md:block">
+                  <h3 className="font-semibold text-gray-800">{user.name}</h3>
+                  <p className="text-sm text-gray-500">
+                    {user.registration_no || user.department || "Student"}
+                  </p>
+                </div>
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                  {getInitials(user.name)}
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        </div>
-      </div>
+      </nav>
+
+      <div className="flex pt-20">
+        <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+
+        <main className="flex-1 p-6 lg:p-8">
+          <div className="max-w-7xl mx-auto">
+            {/* Welcome Section */}
+            <div className="mb-8">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                    Welcome back, <span className="text-blue-700">{user.name.split(' ')[0]}!</span> 👋
+                  </h1>
+                  <p className="text-gray-600">
+                    Registration No: <span className="font-mono font-medium text-gray-800">{user.registration_no}</span>
+                  </p>
+                </div>
+                {/* Semester Badge */}
+                <div className="flex items-center space-x-2 bg-white border border-blue-100 shadow-sm px-4 py-2 rounded-xl">
+                  <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 font-medium">Current Semester</p>
+                    <p className="text-sm font-bold text-blue-700">{user.semester || "IV"}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats Grid - Now Dynamic */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {stats.map((stat, idx) => (
+                <div
+                  key={idx}
+                  className={`bg-gradient-to-br from-white to-gray-50 border border-gray-200 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${stat.status === 'warning' ? 'border-l-4 border-l-amber-500' :
+                      stat.status === 'good' ? 'border-l-4 border-l-green-500' :
+                        'border-l-4 border-l-blue-500'
+                    }`}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={`p-3 rounded-xl bg-${stat.color}-100 text-${stat.color}-600`}>
+                      {stat.icon}
+                    </div>
+                    <span className={`text-xs font-semibold px-3 py-1 rounded-full ${stat.status === 'warning' ? 'bg-amber-100 text-amber-700' :
+                        stat.status === 'good' ? 'bg-green-100 text-green-700' :
+                          'bg-blue-100 text-blue-700'
+                      }`}>
+                      {stat.sub}
+                    </span>
+                  </div>
+                  <h3 className="text-4xl font-bold text-gray-800 mb-1">{stat.value}</h3>
+                  <p className="text-gray-600 font-medium">{stat.label}</p>
+
+                  {/* Progress Bar (Only for percentage values) */}
+                  {stat.value.includes('%') && (
+                    <div className="mt-4">
+                      <div className={`h-2 rounded-full bg-gray-200 overflow-hidden`}>
+                        <div
+                          className={`h-full rounded-full ${stat.color === 'amber' ? 'bg-amber-500' :
+                              stat.color === 'blue' ? 'bg-blue-500' :
+                                'bg-green-500' // Changed purple to green for good
+                            }`}
+                          style={{ width: stat.value }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Main Content Grid (Rest remains mostly same) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Left Column */}
+              <div className="lg:col-span-2 space-y-8">
+                {/* Mentor Card */}
+                <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-2xl p-1 shadow-2xl">
+                  <div className="bg-white rounded-[18px] p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-800 flex items-center">
+                          <Users className="w-5 h-5 text-blue-600 mr-2" />
+                          Your Mentor
+                        </h3>
+                        <p className="text-gray-500 text-sm mt-1">Assigned faculty mentor</p>
+                      </div>
+                      <div className="flex items-center space-x-2 bg-green-50 text-green-700 px-3 py-1.5 rounded-full">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-sm font-medium">Online Now</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-4 p-4 bg-blue-50 rounded-xl mb-6">
+                      <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                        SC
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-xl font-bold text-gray-800">Dr. S. Chatterjee</h4>
+                        <p className="text-gray-600">Professor, Computer Science Department</p>
+                        <div className="flex items-center space-x-4 mt-2">
+                          <span className="text-sm text-blue-600 font-medium">⭐ 4.8/5 Rating</span>
+                          <span className="text-sm text-gray-500">📅 Next session: Tomorrow</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <Link
+                        to="/dashboard/chat"
+                        className="group bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-4 rounded-xl text-center transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl flex items-center justify-center space-x-2"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        <span>Send Message</span>
+                        <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </Link>
+                      <button className="group bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold py-3 px-4 rounded-xl text-center transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg flex items-center justify-center space-x-2">
+                        <Video className="w-4 h-4" />
+                        <span>Schedule Call</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Upcoming Classes - Keep Static for now or connect to Schedule API */}
+                <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-lg">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-bold text-gray-800 flex items-center">
+                      <Calendar className="w-5 h-5 text-blue-600 mr-2" />
+                      Today's Schedule
+                    </h3>
+                    <Link to="/dashboard/schedule" className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center">
+                      View Full Schedule
+                      <ChevronRight className="w-4 h-4 ml-1" />
+                    </Link>
+                  </div>
+
+                  <div className="space-y-4">
+                    {upcomingClasses.map((cls, idx) => (
+                      <div
+                        key={idx}
+                        className="group p-4 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-300"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-start space-x-4">
+                            <div className={`p-3 rounded-xl ${cls.status === 'lab' ? 'bg-purple-100 text-purple-600' :
+                                cls.status === 'workshop' ? 'bg-amber-100 text-amber-600' :
+                                  'bg-blue-100 text-blue-600'
+                              }`}>
+                              <Clock className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <div className="flex items-center space-x-2 mb-1">
+                                <span className="text-sm font-bold text-blue-600">{cls.time}</span>
+                                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${cls.status === 'lab' ? 'bg-purple-100 text-purple-700' :
+                                    cls.status === 'workshop' ? 'bg-amber-100 text-amber-700' :
+                                      'bg-blue-100 text-blue-700'
+                                  }`}>
+                                  {cls.status}
+                                </span>
+                              </div>
+                              <h4 className="font-bold text-gray-800">{cls.title}</h4>
+                              <p className="text-sm text-gray-600">{cls.room} • {cls.professor}</p>
+                            </div>
+                          </div>
+                          <button className="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition">
+                            <BookOpen className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-8">
+                {/* Pending Tasks */}
+                <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-lg">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-bold text-gray-800 flex items-center">
+                      <Target className="w-5 h-5 text-amber-600 mr-2" />
+                      Pending Tasks
+                    </h3>
+                    <span className="text-sm font-bold text-white bg-amber-500 px-2.5 py-1 rounded-full">
+                      {pendingTasks.length}
+                    </span>
+                  </div>
+
+                  <div className="space-y-4">
+                    {pendingTasks.map((task, idx) => (
+                      <div
+                        key={idx}
+                        className="p-4 rounded-xl border border-gray-200 hover:border-amber-300 hover:bg-amber-50/30 transition-all"
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <h4 className="font-semibold text-gray-800">{task.title}</h4>
+                          <span className={`text-xs font-bold px-2 py-1 rounded-full ${task.priority === 'high' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+                            }`}>
+                            {task.priority}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-3">{task.subject}</p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-500 flex items-center">
+                            <Clock className="w-3 h-3 mr-1" />
+                            Due: {task.due}
+                          </span>
+                          <button className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center">
+                            Mark as done
+                            <CheckCircle className="w-4 h-4 ml-1" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button className="w-full mt-6 py-3 text-center border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50/50 rounded-xl text-gray-600 hover:text-blue-700 transition-all font-medium">
+                    + Add New Task
+                  </button>
+                </div>
+
+                {/* Recent Activity */}
+                <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-lg">
+                  <h3 className="text-lg font-bold text-gray-800 flex items-center mb-6">
+                    <BarChart3 className="w-5 h-5 text-purple-600 mr-2" />
+                    Recent Activity
+                  </h3>
+
+                  <div className="space-y-4">
+                    {recentActivities.map((activity, idx) => (
+                      <div key={idx} className="flex items-start space-x-3">
+                        <div className={`p-2 rounded-lg ${activity.type === 'mentor' ? 'bg-blue-100 text-blue-600' :
+                            activity.type === 'submission' ? 'bg-green-100 text-green-600' :
+                              'bg-purple-100 text-purple-600'
+                          }`}>
+                          {activity.type === 'mentor' ? <MessageSquare className="w-4 h-4" /> :
+                            activity.type === 'submission' ? <FileText className="w-4 h-4" /> :
+                              <Download className="w-4 h-4" />}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-800">{activity.action}</p>
+                          {activity.mentor && (
+                            <p className="text-xs text-gray-500">with {activity.mentor}</p>
+                          )}
+                          <p className="text-xs text-gray-400 mt-1">{activity.time}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Link
+                    to="/dashboard/activity"
+                    className="mt-6 block text-center text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center"
+                  >
+                    View All Activity
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </Link>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-6">
+                  <h3 className="text-lg font-bold text-gray-800 mb-4">Quick Actions</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button className="p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all text-center group">
+                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-2 group-hover:bg-blue-200 transition">
+                        <BookOpen className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <span className="text-sm font-medium text-gray-700">Course Materials</span>
+                    </button>
+                    <button className="p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all text-center group">
+                      <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center mx-auto mb-2 group-hover:bg-amber-200 transition">
+                        <Users className="w-5 h-5 text-amber-600" />
+                      </div>
+                      <span className="text-sm font-medium text-gray-700">Find Mentor</span>
+                    </button>
+                    <button className="p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all text-center group">
+                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-2 group-hover:bg-green-200 transition">
+                        <FileText className="w-5 h-5 text-green-600" />
+                      </div>
+                      <span className="text-sm font-medium text-gray-700">Assignments</span>
+                    </button>
+                    <button className="p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all text-center group">
+                      <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-2 group-hover:bg-purple-200 transition">
+                        <BarChart3 className="w-5 h-5 text-purple-600" />
+                      </div>
+                      <span className="text-sm font-medium text-gray-700">Grades</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );

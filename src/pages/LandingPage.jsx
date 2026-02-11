@@ -1,441 +1,510 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { 
-  CheckCircle, 
-  User, 
   BookOpen, 
+  Users, 
+  MessageSquare, 
   Target, 
-  Shield, 
-  ArrowRight, 
-  ChevronLeft,
-  Briefcase,
-  GraduationCap,
-  Sparkles,
   Award,
+  Calendar,
+  Star,
+  ChevronRight,
+  Menu,
+  X,
+  LogIn,
+  UserPlus,
+  GraduationCap,
+  HeartHandshake,
   TrendingUp,
-  Users,
-  Mail,
+  CheckCircle,
   Phone,
-  Globe,
-  FileText
+  Mail,
+  MapPin,
+  ArrowRight,
+  Sparkles,
+  Target as TargetIcon,
+  Users as UsersIcon
 } from 'lucide-react';
-import './Onboarding.css'; // We'll create this CSS file
 
-const Onboarding = () => {
-  const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
-    rollNo: '',
-    department: 'CSE',
-    year: '3rd',
-    section: '',
-    phone: '',
-    interests: [],
-    careerGoal: ''
-  });
-  const [isAnimating, setIsAnimating] = useState(false);
+const LandingPage = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  const features = [
+    {
+      icon: <BookOpen className="w-8 h-8" />,
+      title: "Expert Guidance",
+      description: "Get personalized mentorship from experienced seniors and faculty members."
+    },
+    {
+      icon: <Users className="w-8 h-8" />,
+      title: "Smart Matching",
+      description: "Our algorithm matches you with the perfect mentor based on your interests and goals."
+    },
+    {
+      icon: <MessageSquare className="w-8 h-8" />,
+      title: "Direct Communication",
+      description: "Easy and secure messaging platform for seamless mentor-mentee interactions."
+    },
+    {
+      icon: <Target className="w-8 h-8" />,
+      title: "Goal Tracking",
+      description: "Set and track academic and career goals with your mentor's guidance."
+    }
+  ];
 
-  // Mock Data
-  const assignedMentor = {
-    name: "Dr. S. Chatterjee",
-    designation: "Associate Professor",
-    department: "Computer Science & Engineering",
-    specialization: "Artificial Intelligence & Data Science",
-    experience: "12+ years",
-    studentsGuided: "85+",
-    email: "schatterjee@university.edu",
-    achievements: ["Best Mentor Award 2023", "5 Research Papers", "Industry Collaborations"],
-    image: "/api/placeholder/150/150"
-  };
+  const steps = [
+    {
+      number: "1",
+      title: "Register",
+      description: "Create your account as a mentor or mentee"
+    },
+    {
+      number: "2",
+      title: "Complete Profile",
+      description: "Share your interests, skills, and goals"
+    },
+    {
+      number: "3",
+      title: "Get Matched",
+      description: "Our system matches you with compatible partners"
+    },
+    {
+      number: "4",
+      title: "Start Journey",
+      description: "Begin your mentorship journey with guidance"
+    }
+  ];
 
-  const handleNext = () => {
-    setIsAnimating(true);
-    setTimeout(() => {
-      setStep(prev => prev + 1);
-      setIsAnimating(false);
-    }, 300);
-  };
-
-  const handleBack = () => {
-    setIsAnimating(true);
-    setTimeout(() => {
-      setStep(prev => prev - 1);
-      setIsAnimating(false);
-    }, 300);
-  };
-
-  const toggleInterest = (interest) => {
-    setFormData(prev => ({
-      ...prev,
-      interests: prev.interests.includes(interest) 
-        ? prev.interests.filter(i => i !== interest)
-        : [...prev.interests, interest]
-    }));
-  };
-
-  const handleFinalSubmit = () => {
-    // Add confetti or success animation here
-    const submitBtn = document.querySelector('.submit-btn');
-    submitBtn.classList.add('success-animation');
-    
-    setTimeout(() => {
-      alert("🎉 Profile Completed & Mentor Locked! Redirecting to Dashboard...");
-      // navigate('/dashboard');
-    }, 1500);
-  };
-
-  // Animation for step indicators
-  useEffect(() => {
-    const indicators = document.querySelectorAll('.step-indicator');
-    indicators.forEach((indicator, index) => {
-      if (index + 1 === step) {
-        indicator.classList.add('pulse');
-        setTimeout(() => indicator.classList.remove('pulse'), 600);
-      }
-    });
-  }, [step]);
+  const testimonials = [
+    {
+      name: "Rahul Sharma",
+      role: "Computer Science, 3rd Year",
+      text: "My mentor helped me land an internship at Google. The guidance was invaluable!",
+      rating: 5
+    },
+    {
+      name: "Priya Patel",
+      role: "MBA Student",
+      text: "The mentor-mentee program transformed my career perspective and networking skills.",
+      rating: 5
+    },
+    {
+      name: "Dr. Anil Kumar",
+      role: "Faculty Mentor",
+      text: "A wonderful platform to give back and guide the next generation of students.",
+      rating: 5
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 via-white flex flex-col items-center justify-center py-8 px-4 sm:px-6 lg:px-8 font-sans relative overflow-hidden">
-      
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Navigation */}
+      <nav className="fixed w-full bg-white shadow-lg z-50">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex justify-between items-center">
+            <Link to="/" className="flex items-center space-x-3">
+              <img 
+                src="/au_logo.png" 
+                alt="Adamas University Logo" 
+                className="h-12 w-auto"
+              />
+              <div>
+                <h1 className="text-xl font-bold text-gray-800">Adamas University</h1>
+                <p className="text-sm text-blue-800">Mentor-Mentee Platform</p>
+              </div>
+            </Link>
 
-      {/* Header with Logo */}
-      <div className="relative z-10 text-center mb-8">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-            <Users className="text-white" size={24} />
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center space-x-8">
+              <a href="#home" className="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+              <a href="#features" className="text-gray-700 hover:text-blue-600 font-medium">Features</a>
+              <a href="#how-it-works" className="text-gray-700 hover:text-blue-600 font-medium">How It Works</a>
+              <a href="#testimonials" className="text-gray-700 hover:text-blue-600 font-medium">Testimonials</a>
+              <div className="flex space-x-4">
+                <Link 
+                  to="/login"
+                  className="flex items-center space-x-2 px-4 py-2 text-blue-700 border border-blue-700 rounded-lg hover:bg-blue-50 transition"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>Login</span>
+                </Link>
+                <Link 
+                  to="/signup"
+                  className="flex items-center space-x-2 px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>Sign Up</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button 
+              className="md:hidden"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-purple-700 bg-clip-text text-transparent">
-            MentorConnect
-          </h1>
-          <Sparkles className="text-yellow-500" size={20} />
-        </div>
-        <p className="text-slate-600">Complete your profile to begin your mentorship journey</p>
-      </div>
 
-      {/* Progress Steps with Animation */}
-      <div className="relative z-10 max-w-4xl w-full mb-12">
-        <div className="flex justify-between items-center relative px-8">
-          {/* Animated Progress Line */}
-          <div className="absolute left-16 right-16 top-1/2 -translate-y-1/2 h-1.5 bg-slate-200 -z-10 overflow-hidden rounded-full">
-            <div 
-              className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500 ease-out"
-              style={{ width: `${((step - 1) / 2) * 100}%` }}
-            ></div>
+          {/* Mobile Menu */}
+          {isMenuOpen && (
+            <div className="md:hidden mt-4 pb-4 border-t">
+              <div className="flex flex-col space-y-4 pt-4">
+                <a href="#home" className="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+                <a href="#features" className="text-gray-700 hover:text-blue-600 font-medium">Features</a>
+                <a href="#how-it-works" className="text-gray-700 hover:text-blue-600 font-medium">How It Works</a>
+                <a href="#testimonials" className="text-gray-700 hover:text-blue-600 font-medium">Testimonials</a>
+                <div className="flex flex-col space-y-3 pt-4">
+                  <Link 
+                    to="/login"
+                    className="flex items-center justify-center space-x-2 px-4 py-2 text-blue-700 border border-blue-700 rounded-lg hover:bg-blue-50"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    <span>Login</span>
+                  </Link>
+                  <Link 
+                    to="/signup"
+                    className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    <span>Sign Up</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section 
+        id="home"
+        className="pt-24 pb-20 px-4"
+        style={{
+          backgroundImage: "linear-gradient(rgba(0, 51, 102, 0.9), rgba(0, 51, 102, 0.85)), url('/carousel2.webp')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
+        <div className="container mx-auto text-center text-white">
+          <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+            <Sparkles className="w-5 h-5 text-amber-300" />
+            <span className="text-amber-300 font-medium">Exclusive Platform for Adamas University</span>
           </div>
           
-          {[1, 2, 3].map((stepNumber) => (
-            <div key={stepNumber} className="flex flex-col items-center gap-3 z-20">
-              <div className={`
-                step-indicator w-14 h-14 rounded-full flex items-center justify-center border-4 shadow-lg
-                transition-all duration-300 transform hover:scale-110
-                ${step >= stepNumber 
-                  ? 'bg-gradient-to-br from-blue-600 to-purple-600 border-white text-white shadow-blue-200' 
-                  : 'bg-white border-slate-200 text-slate-400 shadow-slate-100'
-                }
-                ${step === stepNumber ? 'ring-4 ring-blue-200' : ''}
-              `}>
-                {stepNumber === 1 && <User size={20} />}
-                {stepNumber === 2 && <Target size={20} />}
-                {stepNumber === 3 && <Shield size={20} />}
-              </div>
-              <span className={`text-sm font-bold ${step >= stepNumber ? 'text-slate-800' : 'text-slate-400'}`}>
-                {stepNumber === 1 ? 'Personal Details' : stepNumber === 2 ? 'Goals & Interests' : 'Confirm Mentor'}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Main Form Card with Glassmorphism */}
-      <div className={`
-        relative z-10 max-w-2xl w-full bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/40
-        overflow-hidden transform transition-all duration-500
-        ${isAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}
-      `}>
-        
-        {/* Decorative Header */}
-        <div className="h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
-
-        {/* --- STEP 1: PERSONAL DETAILS --- */}
-        {step === 1 && (
-          <div className="p-10">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                <User className="text-blue-600" size={24} />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-slate-900">Personal Details</h2>
-                <p className="text-slate-500 text-sm">Let's get to know you better</p>
-              </div>
-            </div>
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+            Connect. Learn. <span className="text-amber-400">Grow Together</span>
+          </h1>
+          <p className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto text-blue-100">
+            Join Adamas University's exclusive mentorship platform where experienced mentors guide 
+            the next generation towards academic and career excellence.
+          </p>
+          
+          <div className="flex flex-col md:flex-row justify-center gap-4 mb-16">
+            <Link 
+              to="/signup?type=mentee"
+              className="group inline-flex items-center justify-center space-x-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl"
+            >
+              <span>Find a Mentor</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
             
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-slate-700 flex items-center gap-2">
-                    <FileText size={14} /> Roll Number
-                  </label>
-                  <input 
-                    type="text" 
-                    placeholder="AU/2022/XXXX"
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white/50 hover:bg-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-slate-700 flex items-center gap-2">
-                    <Phone size={14} /> Phone Number
-                  </label>
-                  <input 
-                    type="tel" 
-                    placeholder="+91 98765 43210"
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white/50 hover:bg-white"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-slate-700">Year</label>
-                  <select className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none bg-white/50 hover:bg-white transition-all">
-                    <option>1st Year</option>
-                    <option>2nd Year</option>
-                    <option>3rd Year</option>
-                    <option>4th Year</option>
-                  </select>
-                </div>
-                <div className="md:col-span-2 space-y-2">
-                  <label className="block text-sm font-semibold text-slate-700">Department</label>
-                  <select className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none bg-white/50 hover:bg-white transition-all">
-                    <option>Computer Science & Engineering</option>
-                    <option>Electronics & Communication</option>
-                    <option>Mechanical Engineering</option>
-                    <option>Biotechnology</option>
-                    <option>Civil Engineering</option>
-                  </select>
-                </div>
-              </div>
+            <Link 
+              to="/signup?type=mentor"
+              className="group inline-flex items-center justify-center space-x-3 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white font-semibold py-4 px-8 rounded-xl text-lg transition-all duration-300 border-2 border-white/30 hover:border-white/50"
+            >
+              <GraduationCap className="w-5 h-5" />
+              <span>Become a Mentor</span>
+            </Link>
+          </div>
+          
+          {/* Quick Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold text-amber-400">500+</div>
+              <div className="text-blue-200 font-medium">Active Mentors</div>
             </div>
-            
-            <div className="mt-12 flex justify-end">
-              <button 
-                onClick={handleNext}
-                className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold flex items-center gap-3 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl"
-              >
-                Continue
-                <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
-              </button>
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold text-amber-400">2,000+</div>
+              <div className="text-blue-200 font-medium">Students Connected</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold text-amber-400">15+</div>
+              <div className="text-blue-200 font-medium">Departments</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold text-amber-400">4.8</div>
+              <div className="text-blue-200 font-medium">Average Rating</div>
             </div>
           </div>
-        )}
+        </div>
+      </section>
 
-        {/* --- STEP 2: ACADEMIC GOALS --- */}
-        {step === 2 && (
-          <div className="p-10">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                <Target className="text-purple-600" size={24} />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-slate-900">Goals & Interests</h2>
-                <p className="text-slate-500 text-sm">Tell us about your aspirations</p>
-              </div>
+      {/* Features Section */}
+      <section id="features" className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center space-x-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full mb-4">
+              <TargetIcon className="w-4 h-4" />
+              <span className="font-medium">Why Choose Our Platform</span>
             </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+              Everything You Need for <span className="text-blue-700">Academic Success</span>
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+              A comprehensive mentorship platform designed specifically for Adamas University students
+            </p>
+          </div>
 
-            <div className="space-y-8">
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
-                  <TrendingUp size={16} /> I'm interested in (Select multiple)
-                </label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {[
-                    { icon: <Briefcase size={16} />, label: 'Placement', color: 'blue' },
-                    { icon: <GraduationCap size={16} />, label: 'Higher Studies', color: 'purple' },
-                    { icon: <BookOpen size={16} />, label: 'Research', color: 'green' },
-                    { icon: <Globe size={16} />, label: 'Entrepreneurship', color: 'yellow' },
-                    { icon: <Award size={16} />, label: 'Civil Services', color: 'red' },
-                    { icon: <Users size={16} />, label: 'Leadership', color: 'pink' }
-                  ].map((item) => (
-                    <button
-                      key={item.label}
-                      onClick={() => toggleInterest(item.label)}
-                      className={`
-                        p-4 rounded-xl border-2 transition-all transform hover:scale-[1.02]
-                        ${formData.interests.includes(item.label)
-                          ? `bg-${item.color}-50 border-${item.color}-500 text-${item.color}-700 shadow-md`
-                          : 'bg-white/50 border-slate-200 text-slate-600 hover:border-slate-300'
-                        }
-                      `}
-                    >
-                      <div className="flex flex-col items-center gap-2">
-                        <div className={`p-2 rounded-lg ${formData.interests.includes(item.label) ? `bg-${item.color}-100` : 'bg-slate-100'}`}>
-                          {item.icon}
-                        </div>
-                        <span className="text-sm font-medium">{item.label}</span>
-                      </div>
-                    </button>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <div 
+                key={index}
+                className="group bg-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-blue-200"
+              >
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-50 group-hover:from-blue-200 group-hover:to-blue-100 rounded-2xl flex items-center justify-center text-blue-600 mb-5 group-hover:scale-110 transition-transform">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">{feature.title}</h3>
+                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section id="how-it-works" className="py-20 bg-gradient-to-b from-blue-50 to-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center space-x-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full mb-4">
+              <UsersIcon className="w-4 h-4" />
+              <span className="font-medium">Get Started</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+              Start Your Journey in <span className="text-blue-700">4 Simple Steps</span>
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+              Getting started with our mentorship program is quick and easy
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {steps.map((step, index) => (
+              <div key={index} className="relative">
+                <div className="bg-white p-6 rounded-2xl shadow-lg text-center h-full hover:shadow-xl transition-shadow">
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-5 shadow-lg">
+                    {step.number}
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-3">{step.title}</h3>
+                  <p className="text-gray-600">{step.description}</p>
+                </div>
+                {index < steps.length - 1 && (
+                  <div className="hidden lg:block absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2">
+                    <ChevronRight className="w-8 h-8 text-blue-300" />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Link 
+              to="/signup"
+              className="inline-flex items-center space-x-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-semibold py-3.5 px-8 rounded-xl text-lg transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl"
+            >
+              <span>Get Started Now</span>
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section id="testimonials" className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center space-x-2 bg-amber-50 text-amber-700 px-4 py-2 rounded-full mb-4">
+              <Star className="w-4 h-4" />
+              <span className="font-medium">Success Stories</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+              What Our <span className="text-amber-600">Community</span> Says
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+              Hear from students and mentors who have transformed their academic journey
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <div key={index} className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl border-l-4 border-amber-500 shadow-lg hover:shadow-xl transition-shadow">
+                <div className="flex mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-amber-500 fill-current" />
                   ))}
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
-                  <Target size={16} /> Short-term Goal
-                </label>
-                <div className="relative">
-                  <textarea 
-                    className="w-full px-4 py-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white/50 hover:bg-white resize-none h-32 transition-all"
-                    placeholder="Share your goals for this semester... (e.g., I want to learn ReactJS, publish one research paper, or prepare for campus placements)"
-                  />
-                  <div className="absolute bottom-3 right-3 text-xs text-slate-400">
-                    Optional
+                <p className="text-gray-700 italic mb-6 leading-relaxed">"{testimonial.text}"</p>
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center text-blue-600 font-bold mr-4">
+                    {testimonial.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-800">{testimonial.name}</h4>
+                    <p className="text-gray-600">{testimonial.role}</p>
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="mt-12 flex justify-between">
-              <button 
-                onClick={handleBack}
-                className="text-slate-600 hover:text-slate-800 flex items-center gap-2 transition-all hover:gap-3 px-4 py-2 rounded-lg hover:bg-slate-100"
-              >
-                <ChevronLeft size={18} /> Back
-              </button>
-              <button 
-                onClick={handleNext}
-                className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold flex items-center gap-3 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl"
-              >
-                Continue to Mentor
-                <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
-              </button>
-            </div>
+            ))}
           </div>
-        )}
+        </div>
+      </section>
 
-        {/* --- STEP 3: MENTOR CONFIRMATION --- */}
-        {step === 3 && (
-          <div className="p-10">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                <Shield className="text-green-600" size={24} />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-slate-900">Confirm Your Mentor</h2>
-                <p className="text-slate-500 text-sm">Your guide for the academic journey</p>
-              </div>
-            </div>
-
-            {/* Mentor Profile Card */}
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl blur opacity-30 group-hover:opacity-40 transition duration-500"></div>
-              <div className="relative bg-white rounded-2xl border border-slate-200 p-8 shadow-lg">
-                <div className="absolute top-4 right-4">
-                  <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">
-                    ASSIGNED MENTOR
-                  </div>
-                </div>
-                
-                <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-                  {/* Mentor Avatar */}
-                  <div className="relative">
-                    <div className="w-32 h-32 bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl flex items-center justify-center shadow-xl">
-                      <User size={48} className="text-white" />
-                    </div>
-                    <div className="absolute -bottom-2 -right-2 bg-yellow-400 text-white p-2 rounded-full">
-                      <Award size={16} />
-                    </div>
-                  </div>
-
-                  {/* Mentor Details */}
-                  <div className="flex-1 text-center md:text-left">
-                    <h3 className="text-2xl font-bold text-slate-900 mb-1">{assignedMentor.name}</h3>
-                    <p className="text-lg text-blue-600 font-semibold mb-2">{assignedMentor.designation}</p>
-                    <p className="text-slate-600 mb-4">{assignedMentor.department}</p>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      <div className="flex items-center gap-3 text-slate-700">
-                        <BookOpen className="text-blue-500" size={18} />
-                        <span>{assignedMentor.specialization}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-slate-700">
-                        <TrendingUp className="text-green-500" size={18} />
-                        <span>{assignedMentor.experience} Experience</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-slate-700">
-                        <Users className="text-purple-500" size={18} />
-                        <span>{assignedMentor.studentsGuided} Students Guided</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-slate-700">
-                        <Mail className="text-red-500" size={18} />
-                        <span>{assignedMentor.email}</span>
-                      </div>
-                    </div>
-
-                    {/* Achievements */}
-                    <div className="mt-6 pt-6 border-t border-slate-200">
-                      <h4 className="text-sm font-semibold text-slate-700 mb-3">Key Achievements</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {assignedMentor.achievements.map((achievement, index) => (
-                          <span key={index} className="px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-full border border-blue-100">
-                            {achievement}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Important Notice */}
-            <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl border border-blue-100">
-              <div className="flex items-start gap-3">
-                <Shield className="text-blue-600 mt-1" size={20} />
-                <div>
-                  <h4 className="font-semibold text-slate-800 mb-2">Important Notice</h4>
-                  <p className="text-sm text-slate-600">
-                    This mentor has been carefully assigned based on your profile and interests. 
-                    Once confirmed, any changes will require approval from the Head of Department.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="mt-12 flex flex-col sm:flex-row gap-4">
-              <button 
-                onClick={handleBack}
-                className="flex-1 text-slate-600 hover:text-slate-800 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-all hover:bg-slate-100"
-              >
-                <ChevronLeft size={18} /> Back to Edit
-              </button>
-              <button 
-                onClick={handleFinalSubmit}
-                className="submit-btn flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-3 transition-all transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
-              >
-                <CheckCircle size={20} />
-                Confirm & Lock Mentor
-              </button>
-            </div>
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-400 to-amber-600 rounded-3xl mb-6 shadow-xl">
+            <HeartHandshake className="w-10 h-10" />
           </div>
-        )}
-      </div>
+          <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            Ready to <span className="text-amber-400">Transform</span> Your Academic Journey?
+          </h2>
+          <p className="text-xl text-blue-200 mb-10 max-w-3xl mx-auto leading-relaxed">
+            Join thousands of Adamas University students who are already benefiting from personalized mentorship
+          </p>
+          
+          <div className="flex flex-col md:flex-row justify-center gap-6 mb-12">
+            <Link 
+              to="/signup?type=mentee"
+              className="group inline-flex items-center justify-center space-x-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold py-4 px-10 rounded-xl text-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl"
+            >
+              <UserPlus className="w-5 h-5" />
+              <span>Join as Mentee</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            
+            <Link 
+              to="/signup?type=mentor"
+              className="group inline-flex items-center justify-center space-x-3 bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-sm hover:from-white/20 hover:to-white/10 text-white font-semibold py-4 px-10 rounded-xl text-lg transition-all duration-300 border-2 border-white/30 hover:border-white/50 hover:shadow-2xl"
+            >
+              <GraduationCap className="w-5 h-5" />
+              <span>Become a Mentor</span>
+            </Link>
+          </div>
+          
+          <div className="inline-flex items-center space-x-2 text-blue-200">
+            <CheckCircle className="w-5 h-5" />
+            <span>Already have an account? </span>
+            <Link 
+              to="/login" 
+              className="text-white font-semibold hover:text-amber-300 transition ml-1"
+            >
+              Sign In Now
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* Footer */}
-      <div className="relative z-10 mt-12 text-center">
-        <p className="text-sm text-slate-500">
-          Need help? Contact the <span className="text-blue-600 font-medium">Mentor Support Team</span>
-        </p>
-        <div className="mt-2 text-xs text-slate-400">
-          © 2024 MentorConnect. All rights reserved.
+      <footer className="bg-gradient-to-b from-gray-900 to-gray-950 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center space-x-3 mb-6">
+                <img 
+                  src="/au_logo.png" 
+                  alt="Adamas University Logo" 
+                  className="h-12 w-auto"
+                />
+                <div>
+                  <h3 className="text-xl font-bold">Adamas University</h3>
+                  <p className="text-blue-300 text-sm">Mentor-Mentee Platform</p>
+                </div>
+              </div>
+              <p className="text-gray-400 leading-relaxed">
+                Connecting generations of learners with experienced mentors for academic and career excellence.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="text-lg font-semibold mb-6 text-white">Quick Links</h4>
+              <ul className="space-y-3">
+                <li>
+                  <Link to="/" className="text-gray-400 hover:text-white transition flex items-center space-x-2">
+                    <ChevronRight className="w-3 h-3" />
+                    <span>Home</span>
+                  </Link>
+                </li>
+                <li>
+                  <a href="#features" className="text-gray-400 hover:text-white transition flex items-center space-x-2">
+                    <ChevronRight className="w-3 h-3" />
+                    <span>Features</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="#testimonials" className="text-gray-400 hover:text-white transition flex items-center space-x-2">
+                    <ChevronRight className="w-3 h-3" />
+                    <span>Testimonials</span>
+                  </a>
+                </li>
+                <li>
+                  <Link to="/login" className="text-gray-400 hover:text-white transition flex items-center space-x-2">
+                    <ChevronRight className="w-3 h-3" />
+                    <span>Login</span>
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-lg font-semibold mb-6 text-white">Contact Info</h4>
+              <ul className="space-y-4">
+                <li className="flex items-start space-x-3 text-gray-400">
+                  <MapPin className="w-5 h-5 text-blue-400 mt-1" />
+                  <span>Adamas University, Barasat, Kolkata, West Bengal 700126</span>
+                </li>
+                <li className="flex items-center space-x-3 text-gray-400">
+                  <Mail className="w-5 h-5 text-blue-400" />
+                  <span>mentorship@adamasuniversity.ac.in</span>
+                </li>
+                <li className="flex items-center space-x-3 text-gray-400">
+                  <Phone className="w-5 h-5 text-blue-400" />
+                  <span>+91 33 1234 5678</span>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-lg font-semibold mb-6 text-white">Stay Updated</h4>
+              <p className="text-gray-400 mb-4 leading-relaxed">
+                Subscribe to our newsletter for mentorship tips and updates
+              </p>
+              <div className="flex">
+                <input 
+                  type="email" 
+                  placeholder="Your email address" 
+                  className="bg-gray-800 text-white px-4 py-3 rounded-l-lg flex-grow focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 px-6 py-3 rounded-r-lg font-medium transition-all">
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-800 pt-8 text-center">
+            <p className="text-gray-500">
+              © {new Date().getFullYear()} Adamas University Mentor-Mentee Platform. All rights reserved.
+            </p>
+            <p className="text-gray-600 text-sm mt-2">
+              Designed with ❤️ for the Adamas University community
+            </p>
+          </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 };
 
-export default Onboarding;
+export default LandingPage;
