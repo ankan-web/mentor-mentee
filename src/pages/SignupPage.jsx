@@ -132,7 +132,20 @@ const SignUpPage = () => {
 
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      let errorMessage = 'Registration failed. Please try again.';
+      
+      if (err.response) {
+        // Server responded with error status
+        errorMessage = err.response.data?.message || `Server error: ${err.response.status}`;
+      } else if (err.request) {
+        // Request was made but no response received (network error)
+        errorMessage = 'Network error. Please check your internet connection.';
+      } else {
+        // Something else happened
+        errorMessage = err.message || 'An unexpected error occurred.';
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

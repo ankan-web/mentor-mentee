@@ -3,17 +3,26 @@ import puppeteer from 'puppeteer';
 export const verifyAndScrapeUMS = async (regNo, password) => {
   const browser = await puppeteer.launch({
     headless: "new",
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+    executablePath: '/usr/bin/chromium'
   });
 
   const page = await browser.newPage();
+  
+  // Set a longer timeout for navigation
+  page.setDefaultNavigationTimeout(60000);
+  page.setDefaultTimeout(60000);
 
   try {
+    console.log(`Attempting to login with regNo: ${regNo}`);
+    
     // 1️⃣ Go to login page
     await page.goto(
       'https://adamasknowledgecity.ac.in/student/login',
-      { waitUntil: 'networkidle2' }
+      { waitUntil: 'domcontentloaded', timeout: 30000 }
     );
+    
+    console.log('Login page loaded successfully');
 
     // 2️⃣ Fill credentials
     await page.type('input[name="registration_no"]', regNo, { delay: 50 });
@@ -26,8 +35,20 @@ export const verifyAndScrapeUMS = async (regNo, password) => {
     ]);
 
     // 4️⃣ Invalid credentials check
-    if (page.url().toLowerCase().includes('login')) {
-      throw new Error('Invalid Credentials');
+    const currentUrl = page.url().toLowerCase();
+    console.log('Current URL after login attempt:', currentUrl);
+    
+    if (currentUrl.includes('login')) {
+      // Check for error message on the page
+      const errorMsg = await page.evaluate(() => {
+        const errorEl = document.querySelector('.alert-danger, .error-message, [role="alert"]');
+        return errorEl ? errorEl.innerText.trim() : null;
+      });
+      
+      if (errorMsg) {
+        throw new Error(`Login failed: ${errorMsg}`);
+      }
+      throw new Error('Invalid Credentials - Please check your registration number and password');
     }
 
     // 5️⃣ Wait for dashboard attendance cards

@@ -17,11 +17,23 @@ const App = () => {
 
   useEffect(() => {
     const loadUser = async () => {
+      // Only check if token exists - skip API call if no token
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setLoading(false);
+        setUser(null);
+        return;
+      }
+
       try {
         const res = await api.get('/users/profile');
         setUser(res.data);
       } catch (err) {
         console.error('Error loading user:', err);
+        // Clear invalid token
+        localStorage.removeItem('token');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('userRole');
         setUser(null);
       } finally {
         setLoading(false);
@@ -31,7 +43,16 @@ const App = () => {
     loadUser();
   }, []);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-gray-100">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Router>

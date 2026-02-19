@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Send, 
@@ -30,11 +30,81 @@ import {
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 
+// Memoized Message Component to prevent unnecessary re-renders
+const MessageBubble = React.memo(({ msg, mentorDetails }) => {
+  return (
+    <div 
+      className={`flex ${msg.sender === 'student' ? 'justify-end' : 'justify-start'}`}
+    >
+      <div className={`
+        max-w-[85%] rounded-2xl p-4 relative group transition-all duration-300
+        ${msg.sender === 'student' 
+          ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-tr-none shadow-lg' 
+          : 'bg-gradient-to-r from-gray-50 to-white border border-gray-200 text-gray-800 rounded-tl-none shadow-sm'
+        }
+      `}>
+        
+        {/* Sender Info for Mentor Messages */}
+        {msg.sender === 'mentor' && (
+          <div className="flex items-center space-x-2 mb-2">
+            <div className="w-6 h-6 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white text-xs font-bold">
+              {mentorDetails.avatar.charAt(0)}
+            </div>
+            <span className="text-xs font-semibold text-gray-700">{mentorDetails.name.split(' ')[0]}</span>
+          </div>
+        )}
+
+        {/* File Attachment */}
+        {msg.type === 'file' && (
+          <div className={`mb-3 p-3 rounded-xl ${msg.sender === 'student' ? 'bg-white/10' : 'bg-blue-50 border border-blue-100'}`}>
+            <div className="flex items-center gap-3">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${msg.sender === 'student' ? 'bg-white/20' : 'bg-white'}`}>
+                <FileText className={`w-6 h-6 ${msg.sender === 'student' ? 'text-white' : 'text-blue-600'}`} />
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <p className={`font-bold truncate ${msg.sender === 'student' ? 'text-white' : 'text-gray-800'}`}>
+                  {msg.fileName}
+                </p>
+                <p className={`text-xs ${msg.sender === 'student' ? 'text-blue-100' : 'text-gray-500'}`}>
+                  {msg.fileSize} • PDF
+                </p>
+              </div>
+              <button className={`p-2 rounded-lg ${msg.sender === 'student' ? 'hover:bg-white/20' : 'hover:bg-blue-100'}`}>
+                <Download className={`w-4 h-4 ${msg.sender === 'student' ? 'text-white' : 'text-blue-600'}`} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Message Content */}
+        <p className={`leading-relaxed ${msg.type === 'file' ? 'mb-1' : ''} ${msg.sender === 'student' ? 'text-blue-50' : 'text-gray-700'}`}>
+          {msg.content}
+        </p>
+
+        {/* Message Metadata */}
+        <div className={`flex items-center justify-end mt-2 ${msg.sender === 'student' ? 'text-blue-200' : 'text-gray-400'}`}>
+          <span className="text-xs">{msg.time}</span>
+          {msg.sender === 'student' && (
+            <span className="flex items-center ml-1">
+              {msg.status === 'sent' && <Check className="w-3 h-3 ml-1" />}
+              {msg.status === 'delivered' && <CheckCheck className="w-3 h-3 ml-1" />}
+              {msg.status === 'read' && <CheckCheck className="w-3 h-3 ml-1 text-blue-300" />}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+MessageBubble.displayName = 'MessageBubble';
+
 const ChatInterface = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [newMessage, setNewMessage] = useState('');
   const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
   const messagesEndRef = useRef(null);
+  const textareaRef = useRef(null);
   
   // Mock Mentor Details
   const mentorDetails = {
@@ -94,20 +164,20 @@ const ChatInterface = () => {
     },
   ]);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = useCallback((e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
     const message = {
-      id: messages.length + 1,
+      id: Date.now(),
       sender: 'student',
       type: 'text',
       content: newMessage,
@@ -115,13 +185,16 @@ const ChatInterface = () => {
       status: 'sent'
     };
 
-    setMessages([...messages, message]);
+    setMessages(prev => [...prev, message]);
     setNewMessage('');
+    
+    // Focus back on textarea after sending
+    textareaRef.current?.focus();
 
     // Simulate Auto-Reply (for demo)
     setTimeout(() => {
       setMessages(prev => [...prev, {
-        id: prev.length + 1,
+        id: Date.now() + 1,
         sender: 'mentor',
         type: 'text',
         content: 'Got it. Let\'s discuss this in our next meeting.',
@@ -129,13 +202,13 @@ const ChatInterface = () => {
         status: 'read'
       }]);
     }, 2000);
-  };
+  }, [newMessage]);
 
-  const handleFileUpload = (type) => {
+  const handleFileUpload = useCallback((type) => {
     // Handle file upload logic here
     console.log(`Uploading ${type}`);
     setShowAttachmentMenu(false);
-  };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-100">
@@ -284,68 +357,11 @@ const ChatInterface = () => {
                     </div>
 
                     {messages.map((msg) => (
-                      <div 
+                      <MessageBubble 
                         key={msg.id} 
-                        className={`flex ${msg.sender === 'student' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div className={`
-                          max-w-[85%] rounded-2xl p-4 relative group transition-all duration-300
-                          ${msg.sender === 'student' 
-                            ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-tr-none shadow-lg' 
-                            : 'bg-gradient-to-r from-gray-50 to-white border border-gray-200 text-gray-800 rounded-tl-none shadow-sm'
-                          }
-                        `}>
-                          
-                          {/* Sender Info for Mentor Messages */}
-                          {msg.sender === 'mentor' && (
-                            <div className="flex items-center space-x-2 mb-2">
-                              <div className="w-6 h-6 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                {mentorDetails.avatar.charAt(0)}
-                              </div>
-                              <span className="text-xs font-semibold text-gray-700">{mentorDetails.name.split(' ')[0]}</span>
-                            </div>
-                          )}
-
-                          {/* File Attachment */}
-                          {msg.type === 'file' && (
-                            <div className={`mb-3 p-3 rounded-xl ${msg.sender === 'student' ? 'bg-white/10' : 'bg-blue-50 border border-blue-100'}`}>
-                              <div className="flex items-center gap-3">
-                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${msg.sender === 'student' ? 'bg-white/20' : 'bg-white'}`}>
-                                  <FileText className={`w-6 h-6 ${msg.sender === 'student' ? 'text-white' : 'text-blue-600'}`} />
-                                </div>
-                                <div className="flex-1 overflow-hidden">
-                                  <p className={`font-bold truncate ${msg.sender === 'student' ? 'text-white' : 'text-gray-800'}`}>
-                                    {msg.fileName}
-                                  </p>
-                                  <p className={`text-xs ${msg.sender === 'student' ? 'text-blue-100' : 'text-gray-500'}`}>
-                                    {msg.fileSize} • PDF
-                                  </p>
-                                </div>
-                                <button className={`p-2 rounded-lg ${msg.sender === 'student' ? 'hover:bg-white/20' : 'hover:bg-blue-100'}`}>
-                                  <Download className={`w-4 h-4 ${msg.sender === 'student' ? 'text-white' : 'text-blue-600'}`} />
-                                </button>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Message Content */}
-                          <p className={`leading-relaxed ${msg.type === 'file' ? 'mb-1' : ''} ${msg.sender === 'student' ? 'text-blue-50' : 'text-gray-700'}`}>
-                            {msg.content}
-                          </p>
-
-                          {/* Message Metadata */}
-                          <div className={`flex items-center justify-end mt-2 ${msg.sender === 'student' ? 'text-blue-200' : 'text-gray-400'}`}>
-                            <span className="text-xs">{msg.time}</span>
-                            {msg.sender === 'student' && (
-                              <span className="flex items-center ml-1">
-                                {msg.status === 'sent' && <Check className="w-3 h-3 ml-1" />}
-                                {msg.status === 'delivered' && <CheckCheck className="w-3 h-3 ml-1" />}
-                                {msg.status === 'read' && <CheckCheck className="w-3 h-3 ml-1 text-blue-300" />}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
+                        msg={msg} 
+                        mentorDetails={mentorDetails}
+                      />
                     ))}
                     <div ref={messagesEndRef} />
                   </div>
@@ -398,6 +414,7 @@ const ChatInterface = () => {
                         {/* Text Input */}
                         <div className="flex-1 relative">
                           <textarea
+                            ref={textareaRef}
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
                             onKeyDown={(e) => {

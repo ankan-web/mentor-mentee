@@ -1,7 +1,12 @@
 import axios from 'axios';
 
+// Use localhost for development, Render URL for production
+const baseURL = import.meta.env.DEV 
+  ? 'http://localhost:5000/api' 
+  : 'https://mentor-mentee-yemf.onrender.com/api';
+
 const api = axios.create({
-  baseURL: 'https://mentor-mentee-yemf.onrender.com/api',
+  baseURL,
 });
 
 // 🔥 Restore token automatically on app load

@@ -2,6 +2,12 @@ import express from 'express';
 import { registerUser , loginUser , updateUserProfile , loginWithUMS} from '../controllers/userController.js';
 import { protect } from '../middleware/authMiddleware.js';
 const router = express.Router();
+
+// Health check endpoint
+router.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 router.get('/profile', protect, (req, res) => {
   if (req.user) {
     res.json(req.user);

@@ -58,19 +58,43 @@ const LoginPage = () => {
 
     } catch (err) {
       console.error("Login Error:", err);
-      // Display error message from Backend (e.g., "Invalid Registration Number or Password")
-      setError(err.response?.data?.message || 'Login failed. Please check your UMS credentials.');
+      
+      let errorMessage = 'Login failed. Please check your UMS credentials.';
+      
+      if (err.response) {
+        // Server responded with error status
+        const serverMessage = err.response.data?.message;
+        const serverError = err.response.data?.error;
+        
+        if (serverMessage) {
+          errorMessage = serverMessage;
+        } else if (serverError) {
+          errorMessage = serverError;
+        } else {
+          errorMessage = `Server error: ${err.response.status}`;
+        }
+        
+        // Special handling for 401
+        if (err.response.status === 401) {
+          errorMessage = serverMessage || 'Invalid registration number or password. Please verify your UMS credentials.';
+        }
+        
+        // Special handling for 503 (Service Unavailable - DB error)
+        if (err.response.status === 503) {
+          errorMessage = serverMessage || 'Server database error. Please contact support.';
+        }
+      } else if (err.request) {
+        // Request was made but no response received (network error)
+        errorMessage = 'Network error. Please check your internet connection and try again.';
+      } else {
+        // Something else happened
+        errorMessage = err.message || 'An unexpected error occurred.';
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false); 
     }
-  };
-
-  const handleForgotPassword = (e) => {
-    e.preventDefault();
-    // Since we use UMS, we can't reset passwords here. 
-    // We redirect/inform them to use the official UMS portal.
-    alert('Please use the official Adamas University UMS portal to reset your password.');
-    setIsForgotPassword(false);
   };
 
   return (
