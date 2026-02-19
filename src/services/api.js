@@ -1,9 +1,12 @@
 import axios from 'axios';
 
-// Use localhost for development, Render URL for production
-const baseURL = import.meta.env.DEV 
-  ? 'http://localhost:5000/api' 
-  : 'https://mentor-mentee-yemf.onrender.com/api';
+// Priority: 1. Vite env var, 2. Localhost for dev, 3. Render URL for prod
+const baseURL = import.meta.env.VITE_API_URL 
+  || (import.meta.env.DEV 
+    ? 'http://localhost:5000/api' 
+    : 'https://mentor-mentee-yemf.onrender.com/api');
+
+console.log('API Base URL:', baseURL);
 
 const api = axios.create({
   baseURL,
