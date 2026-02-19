@@ -128,8 +128,8 @@ export const loginWithUMS = async (req, res) => {
     });
   }
 
-  // DEV MODE: Allow mock login for testing
-  if (process.env.NODE_ENV === 'development' || registration_no === 'test' || registration_no === 'AU/2022/TEST') {
+  // DEV MODE or when Chrome is not available: Allow mock login for testing
+  if (process.env.NODE_ENV === 'development' || process.env.DISABLE_UMS_SCRAPER === 'true' || registration_no === 'test' || registration_no === 'AU/2022/TEST') {
     console.log('Using mock login for:', registration_no);
     
     const fakeEmail = `${registration_no}@adamas.ac.in`;
@@ -261,6 +261,8 @@ export const loginWithUMS = async (req, res) => {
       errorMessage = "UMS website is taking too long to respond. Please try again later.";
     } else if (error.message.includes('net::ERR')) {
       errorMessage = "Network error. Cannot connect to UMS website.";
+    } else if (error.message.includes('Could not find Chrome') || error.message.includes('browser was not found')) {
+      errorMessage = "UMS login is temporarily unavailable in this environment. Please use test credentials: Registration No: 'test', Password: anything";
     } else {
       errorMessage = error.message;
     }
