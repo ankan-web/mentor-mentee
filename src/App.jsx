@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import api from './services/api';
 
@@ -15,33 +15,34 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const loadUser = async () => {
-      // Only check if token exists - skip API call if no token
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setLoading(false);
-        setUser(null);
-        return;
-      }
+  // Function to load user - can be called after login
+  const loadUser = useCallback(async () => {
+    // Only check if token exists - skip API call if no token
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setLoading(false);
+      setUser(null);
+      return;
+    }
 
-      try {
-        const res = await api.get('/users/profile');
-        setUser(res.data);
-      } catch (err) {
-        console.error('Error loading user:', err);
-        // Clear invalid token
-        localStorage.removeItem('token');
-        localStorage.removeItem('userName');
-        localStorage.removeItem('userRole');
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadUser();
+    try {
+      const res = await api.get('/users/profile');
+      setUser(res.data);
+    } catch (err) {
+      console.error('Error loading user:', err);
+      // Clear invalid token
+      localStorage.removeItem('token');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('userRole');
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadUser();
+  }, [loadUser]);
 
   if (loading) {
     return (
@@ -58,8 +59,8 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage onLoginSuccess={loadUser} />} />
+        <Route path="/login" element={<LoginPage onLoginSuccess={loadUser} />} />
 
         {/* Protected Routes */}
         <Route

@@ -99,9 +99,9 @@ const Academics = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-amber-50/30">
       {/* Top Navigation Bar */}
-      <nav className="fixed top-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-lg shadow-sm z-40 border-b border-gray-200">
-        <div className="px-6 py-4 h-full flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+      <nav className="fixed top-0 left-0 right-0 h-16 sm:h-20 bg-white/80 backdrop-blur-lg shadow-sm z-40 border-b border-gray-200">
+        <div className="px-3 sm:px-6 py-2 sm:py-4 h-full flex items-center justify-between">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <button 
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition"
@@ -109,31 +109,31 @@ const Academics = () => {
               <Menu className="w-5 h-5" />
             </button>
             
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               <img 
                 src="/au_logo.png" 
                 alt="Adamas University" 
-                className="h-10 w-auto"
+                className="h-8 sm:h-10 w-auto"
               />
-              <div>
-                <h1 className="text-lg font-bold text-gray-800">Adamas University</h1>
-                <p className="text-sm text-blue-600">Academic Progress</p>
+              <div className="hidden sm:block">
+                <h1 className="text-base sm:text-lg font-bold text-gray-800">Adamas University</h1>
+                <p className="text-xs sm:text-sm text-blue-600">Academic Progress</p>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
-            <div className="hidden md:flex items-center space-x-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="hidden md:flex items-center space-x-2 bg-blue-50 text-blue-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full">
               <GraduationCap className="w-4 h-4" />
-              <span className="font-medium">CSE • 3rd Year</span>
+              <span className="text-xs sm:text-sm font-medium">CSE • 3rd Year</span>
             </div>
             
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               <div className="text-right hidden md:block">
-                <h3 className="font-semibold text-gray-800">Ankan Das</h3>
-                <p className="text-sm text-gray-500">ID: AU20210045</p>
+                <h3 className="font-semibold text-gray-800 text-sm">Ankan Das</h3>
+                <p className="text-xs text-gray-500">ID: AU20210045</p>
               </div>
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white font-bold text-lg">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-lg">
                 AD
               </div>
             </div>
@@ -141,34 +141,34 @@ const Academics = () => {
         </div>
       </nav>
 
-      <div className="flex pt-20">
+      <div className="flex pt-16 sm:pt-20">
         <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
         {/* Main Content */}
         <main className={`
           flex-1 transition-all duration-300 min-h-screen
           ${sidebarOpen ? 'lg:ml-72' : 'lg:ml-20'}
-          p-6 lg:p-8
+          p-4 sm:p-6 lg:p-8
         `}>
           <div className="max-w-7xl mx-auto">
             
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
               <div>
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">
                   Academic <span className="text-blue-700">Progress</span>
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-sm sm:text-base text-gray-600">
                   Track your grades, attendance, and overall academic performance
                 </p>
               </div>
               
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <div className="relative">
                   <select 
                     value={selectedSemester}
                     onChange={(e) => setSelectedSemester(e.target.value)}
-                    className="appearance-none bg-white border border-gray-200 pl-4 pr-10 py-2.5 rounded-xl text-sm font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer"
+                    className="appearance-none bg-white border border-gray-200 pl-3 sm:pl-4 pr-8 sm:pr-10 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer"
                   >
                     <option>Semester 5 (Current)</option>
                     <option>Semester 4</option>
@@ -176,107 +176,109 @@ const Academics = () => {
                     <option>Semester 2</option>
                     <option>Semester 1</option>
                   </select>
-                  <ChevronDown size={16} className="absolute right-3 top-3 text-gray-400 pointer-events-none" />
+                  <ChevronDown size={16} className="absolute right-2 sm:right-3 top-2.5 sm:top-3 text-gray-400 pointer-events-none" />
                 </div>
                 
-                <button className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:from-blue-700 hover:to-blue-800 transition shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                <button className="flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold hover:from-blue-700 hover:to-blue-800 transition shadow-lg hover:shadow-xl hover:-translate-y-0.5">
                   <Download size={16} /> 
-                  <span>Download Marksheet</span>
+                  <span className="hidden sm:inline">Download Marksheet</span>
+                  <span className="sm:hidden">Download</span>
                 </button>
               </div>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
               {/* CGPA Card */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-blue-100 rounded-xl">
-                    <Award className="w-6 h-6 text-blue-600" />
+              <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
+                <div className="flex items-center justify-between mb-2 sm:mb-4">
+                  <div className="p-2 sm:p-3 bg-blue-100 rounded-lg sm:rounded-xl">
+                    <Award className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                   </div>
-                  <span className="text-xs font-semibold px-3 py-1 bg-green-100 text-green-700 rounded-full">
+                  <span className="text-xs font-semibold px-2 sm:px-3 py-0.5 sm:py-1 bg-green-100 text-green-700 rounded-full">
                     +0.2
                   </span>
                 </div>
-                <p className="text-gray-600 text-sm mb-1">Current CGPA</p>
-                <h2 className="text-3xl font-bold text-gray-800 mb-2">8.42</h2>
+                <p className="text-gray-600 text-xs sm:text-sm mb-1">Current CGPA</p>
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">8.42</h2>
                 <div className="flex items-center text-xs text-green-600">
                   <TrendingUp className="w-3 h-3 mr-1" />
-                  <span>Improved from last semester</span>
+                  <span className="hidden sm:inline">Improved from last semester</span>
+                  <span className="sm:hidden">Improved</span>
                 </div>
               </div>
 
               {/* Credits Card */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-                <div className="p-3 bg-purple-100 rounded-xl mb-4">
-                  <BookOpen className="w-6 h-6 text-purple-600" />
+              <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
+                <div className="p-2 sm:p-3 bg-purple-100 rounded-lg sm:rounded-xl mb-2 sm:mb-4">
+                  <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
                 </div>
-                <p className="text-gray-600 text-sm mb-1">Total Credits</p>
-                <h2 className="text-3xl font-bold text-gray-800 mb-2">86<span className="text-lg text-gray-400">/160</span></h2>
+                <p className="text-gray-600 text-xs sm:text-sm mb-1">Total Credits</p>
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">86<span className="text-base sm:text-lg text-gray-400">/160</span></h2>
                 <p className="text-xs text-gray-500">54 credits remaining</p>
               </div>
 
               {/* Backlogs Card */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-                <div className="p-3 bg-green-100 rounded-xl mb-4">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
+              <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
+                <div className="p-2 sm:p-3 bg-green-100 rounded-lg sm:rounded-xl mb-2 sm:mb-4">
+                  <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
                 </div>
-                <p className="text-gray-600 text-sm mb-1">Active Backlogs</p>
-                <h2 className="text-3xl font-bold text-green-600 mb-2">0</h2>
+                <p className="text-gray-600 text-xs sm:text-sm mb-1">Active Backlogs</p>
+                <h2 className="text-2xl sm:text-3xl font-bold text-green-600 mb-1 sm:mb-2">0</h2>
                 <p className="text-xs text-gray-500">All clear - No backlogs</p>
               </div>
 
               {/* Rank Card */}
-              <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-white/20 rounded-xl">
-                    <Star className="w-6 h-6 text-white" />
+              <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1">
+                <div className="flex items-center justify-between mb-2 sm:mb-4">
+                  <div className="p-2 sm:p-3 bg-white/20 rounded-lg sm:rounded-xl">
+                    <Star className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
                 </div>
-                <p className="text-blue-100 text-sm mb-1">Class Rank</p>
-                <h2 className="text-3xl font-bold mb-2">#14</h2>
+                <p className="text-blue-100 text-xs sm:text-sm mb-1">Class Rank</p>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">#14</h2>
                 <p className="text-xs text-blue-200">Top 15% of batch</p>
               </div>
             </div>
 
             {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 sm:gap-8">
               
               {/* Left Column - Subjects List */}
-              <div className="lg:col-span-2 space-y-6">
-                <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-lg">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                      <BookOpen className="w-5 h-5 text-blue-600" />
+              <div className="xl:col-span-2 space-y-4 sm:space-y-6">
+                <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-lg">
+                  <div className="flex items-center justify-between mb-4 sm:mb-6">
+                    <h3 className="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
+                      <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                       Current Semester Subjects
                     </h3>
-                    <span className="text-sm text-gray-500">Semester 5 • 16 Credits</span>
+                    <span className="text-xs sm:text-sm text-gray-500">Semester 5 • 16 Credits</span>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {subjects.map((sub, idx) => {
                       const status = getAttendanceStatus(sub.attendance);
                       return (
                         <div 
                           key={idx} 
-                          className="group border border-gray-200 hover:border-blue-300 rounded-xl p-4 transition-all hover:shadow-md"
+                          className="group border border-gray-200 hover:border-blue-300 rounded-lg sm:rounded-xl p-3 sm:p-4 transition-all hover:shadow-md"
                         >
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                            <div className="flex items-start gap-3">
-                              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 font-bold text-sm shrink-0">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+                            <div className="flex items-start gap-2 sm:gap-3">
+                              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-50 rounded-lg sm:rounded-xl flex items-center justify-center text-blue-600 font-bold text-xs sm:text-sm shrink-0">
                                 {sub.code}
                               </div>
-                              <div>
-                                <h4 className="font-semibold text-gray-800">{sub.name}</h4>
+                              <div className="min-w-0">
+                                <h4 className="font-semibold text-gray-800 text-sm sm:text-base">{sub.name}</h4>
                                 <div className="flex items-center gap-2 mt-1">
                                   <span className="text-xs text-gray-500">{sub.credits} Credits</span>
                                   <span className="text-xs text-gray-300">•</span>
-                                  <span className="text-xs text-gray-500">{sub.faculty}</span>
+                                  <span className="text-xs text-gray-500 truncate">{sub.faculty}</span>
                                 </div>
                               </div>
                             </div>
                             
-                            <div className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 ${status.bg} ${status.color}`}>
+                            <div className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-bold flex items-center gap-1 sm:gap-1.5 ${status.bg} ${status.color}`}>
                               {sub.attendance < 75 ? <AlertTriangle className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
                               {status.label}
                             </div>
@@ -284,11 +286,11 @@ const Academics = () => {
 
                           {/* Attendance Bar */}
                           <div>
-                            <div className="flex justify-between text-xs mb-1.5">
+                            <div className="flex justify-between text-xs mb-1 sm:mb-1.5">
                               <span className="text-gray-500">Attendance</span>
                               <span className={`font-semibold ${status.color}`}>{sub.attendance}%</span>
                             </div>
-                            <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-2 sm:h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
                               <div 
                                 className={`h-full rounded-full ${getAttendanceColor(sub.attendance)} transition-all duration-500 relative`}
                                 style={{ width: `${sub.attendance}%` }}

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import api from '../services/api';
 import { 
   LayoutDashboard, 
   MessageSquare, 
@@ -21,6 +22,52 @@ import {
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const location = useLocation();
+  
+  // User data state - fetched from API
+  const [userData, setUserData] = useState({
+    name: localStorage.getItem('userName') || 'Student',
+    department: 'Computer Science',
+    semester: 'IV',
+    role: 'student'
+  });
+  
+  // Fetch user data from API
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await api.get('/users/profile');
+        const data = response.data;
+        const profile = data.student_profile || {};
+        
+        const fetchedData = {
+          name: data.name || 'Student',
+          department: data.department || 'Computer Science',
+          semester: profile.semester || 'IV',
+          role: data.role || 'student'
+        };
+        
+        setUserData(fetchedData);
+        // Update localStorage for consistency across components
+        localStorage.setItem('userName', fetchedData.name);
+      } catch (error) {
+        console.error("Failed to fetch sidebar user data:", error);
+        // Fallback to localStorage if API fails
+        const storedName = localStorage.getItem('userName');
+        if (storedName) {
+          setUserData(prev => ({ ...prev, name: storedName }));
+        }
+      }
+    };
+    
+    fetchUserData();
+  }, []);
+  
+  // Get initials from name
+  const getInitials = (name) => {
+    return name
+      ? name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+      : 'U';
+  };
   
   // Check if we're in onboarding route
   const isOnboarding = location.pathname.includes('/onboarding');
@@ -120,7 +167,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         transition-all duration-300 ease-in-out
         
         /* Mobile: Full width slide */
-        w-72 
+        w-[280px] sm:w-72
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
 
         /* Desktop: Always visible, collapsed/expanded */
@@ -165,11 +212,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             <div className="p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white font-bold shrink-0">
-                  AD
+                  {getInitials(userData.name)}
                 </div>
-                <div>
-                  <h3 className="font-semibold text-gray-800">Ankan Das</h3>
-                  <p className="text-xs text-gray-600">CSE • 3rd Year</p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-gray-800 truncate">{userData.name}</h3>
+                  <p className="text-xs text-gray-600 truncate">{userData.department} • Sem {userData.semester}</p>
                 </div>
               </div>
             </div>

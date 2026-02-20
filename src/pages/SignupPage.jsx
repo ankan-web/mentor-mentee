@@ -18,7 +18,7 @@ import {
   AlertCircle // Added for error display
 } from 'lucide-react';
 
-const SignUpPage = () => {
+const SignUpPage = ({ onLoginSuccess }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -120,7 +120,12 @@ const SignUpPage = () => {
       setAuthToken(token); // Save token to localStorage & Axios headers
       localStorage.setItem('userName', name);
 
-      // 5. Redirect based on role
+      // 5. Notify App that user logged in (reload user state)
+      if (onLoginSuccess) {
+        await onLoginSuccess();
+      }
+
+      // 6. Redirect based on role
       if (formData.userType === 'mentee') {
         // Students go to Onboarding to complete their profile (Goals/Interests)
         navigate('/onboarding');
@@ -177,37 +182,36 @@ const SignUpPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center p-4">
-      <div className="absolute top-0 left-0 right-0 p-6">
-        <Link to="/" className="inline-flex items-center space-x-3 text-blue-800 hover:text-blue-900">
-          <ArrowLeft className="w-5 h-5" />
+      <div className="absolute top-0 left-0 right-0 p-4 sm:p-6">
+        <Link to="/" className="inline-flex items-center space-x-2 sm:space-x-3 text-blue-800 hover:text-blue-900 text-sm sm:text-base">
+          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           <span>Back to Home</span>
         </Link>
       </div>
 
-      <div className="max-w-5xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden">
+      <div className="max-w-5xl w-full bg-white rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl overflow-hidden">
         <div className="md:flex">
           {/* Left Side - Branding */}
-          <div className="md:w-2/5 bg-gradient-to-b from-blue-900 to-blue-800 text-white p-8 md:p-12">
+          <div className="hidden md:block md:w-2/5 bg-gradient-to-b from-blue-900 to-blue-800 text-white p-8 md:p-12">
             <div className="flex items-center space-x-3 mb-8">
-              {/* If you don't have this image locally, use a placeholder or remove src */}
-              <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-blue-900 font-bold text-xl">A</div>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-lg flex items-center justify-center text-blue-900 font-bold text-lg sm:text-xl">A</div>
               <div>
-                <h1 className="text-2xl font-bold">Adamas University</h1>
-                <p className="text-blue-200 text-sm">Mentor-Mentee Platform</p>
+                <h1 className="text-xl sm:text-2xl font-bold">Adamas University</h1>
+                <p className="text-blue-200 text-xs sm:text-sm">Mentor-Mentee Platform</p>
               </div>
             </div>
 
             <div className="mb-12">
-              <h2 className="text-3xl font-bold mb-4">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-4">
                 {formData.userType === 'mentor' ? 'Share Your Wisdom' : 'Begin Your Journey'}
               </h2>
               <p className="text-blue-200 mb-6">
-                {formData.userType === 'mentor' 
+                {formData.userType === 'mentor'
                   ? 'Guide the next generation and make a lasting impact on students\' lives.'
                   : 'Connect with experienced mentors and accelerate your academic and career growth.'
                 }
               </p>
-              
+
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
                   <div className={`w-10 h-10 ${formData.userType === 'mentor' ? 'bg-amber-500' : 'bg-blue-700'} rounded-full flex items-center justify-center`}>
@@ -218,14 +222,14 @@ const SignUpPage = () => {
                       {formData.userType === 'mentor' ? 'Shape Futures' : 'Expert Guidance'}
                     </h4>
                     <p className="text-blue-300 text-sm">
-                      {formData.userType === 'mentor' 
+                      {formData.userType === 'mentor'
                         ? 'Share your knowledge and experience'
                         : 'Learn from industry professionals & seniors'
                       }
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
                     <BookOpen className="w-5 h-5" />
@@ -235,14 +239,14 @@ const SignUpPage = () => {
                       {formData.userType === 'mentor' ? 'Teaching Portfolio' : 'Personalized Learning'}
                     </h4>
                     <p className="text-blue-300 text-sm">
-                      {formData.userType === 'mentor' 
+                      {formData.userType === 'mentor'
                         ? 'Build your legacy as an educator'
                         : 'Customized guidance for your goals'
                       }
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
                     <UserPlus className="w-5 h-5" />
@@ -250,7 +254,7 @@ const SignUpPage = () => {
                   <div>
                     <h4 className="font-semibold">Community Network</h4>
                     <p className="text-blue-300 text-sm">
-                      {formData.userType === 'mentor' 
+                      {formData.userType === 'mentor'
                         ? 'Connect with passionate educators'
                         : 'Network with peers and professionals'
                       }
@@ -261,7 +265,7 @@ const SignUpPage = () => {
             </div>
 
             <div className="mt-8 text-center">
-              <p className="text-blue-200">
+              <p className="text-blue-200 text-sm">
                 Already have an account?{' '}
                 <Link to="/login" className="text-white font-semibold hover:text-amber-300">
                   Sign In
@@ -271,98 +275,98 @@ const SignUpPage = () => {
           </div>
 
           {/* Right Side - Registration Form */}
-          <div className="md:w-3/5 p-8 md:p-12">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-800">
+          <div className="w-full md:w-3/5 p-6 sm:p-8 md:p-12">
+            <div className="text-center mb-6 sm:mb-8">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
                 {formData.userType === 'mentor' ? 'Join as Mentor' : 'Join as Mentee'}
               </h2>
-              <p className="text-gray-600 mt-2">
-                {formData.userType === 'mentor' 
+              <p className="text-sm sm:text-base text-gray-600 mt-2">
+                {formData.userType === 'mentor'
                   ? 'Share your expertise and guide students'
                   : 'Start your mentorship journey today'
                 }
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               {/* User Type Selection */}
-              <div className="mb-6">
-                <label className="block text-gray-700 mb-3 font-medium">I want to join as:</label>
-                <div className="grid grid-cols-2 gap-4">
+              <div className="mb-4 sm:mb-6">
+                <label className="block text-sm sm:text-base text-gray-700 mb-3 font-medium">I want to join as:</label>
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   <button
                     type="button"
                     onClick={() => setFormData({...formData, userType: 'mentee'})}
-                    className={`p-4 rounded-xl border-2 transition-all ${
-                      formData.userType === 'mentee' 
-                        ? 'border-blue-600 bg-blue-50 shadow-md' 
+                    className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all min-h-[100px] sm:min-h-[120px] ${
+                      formData.userType === 'mentee'
+                        ? 'border-blue-600 bg-blue-50 shadow-md'
                         : 'border-gray-200 hover:border-blue-400 hover:bg-blue-50'
                     }`}
                   >
                     <div className="text-center">
-                      <div className={`w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center ${
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full mx-auto mb-2 sm:mb-3 flex items-center justify-center ${
                         formData.userType === 'mentee' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-500'
                       }`}>
-                        <GraduationCap className="w-6 h-6" />
+                        <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6" />
                       </div>
-                      <h4 className="font-semibold">Mentee</h4>
-                      <p className="text-sm text-gray-500 mt-1">I want guidance</p>
+                      <h4 className="font-semibold text-sm sm:text-base">Mentee</h4>
+                      <p className="text-xs sm:text-sm text-gray-500 mt-1">I want guidance</p>
                     </div>
                   </button>
-                  
+
                   <button
                     type="button"
                     onClick={() => setFormData({...formData, userType: 'mentor'})}
-                    className={`p-4 rounded-xl border-2 transition-all ${
-                      formData.userType === 'mentor' 
-                        ? 'border-amber-600 bg-amber-50 shadow-md' 
+                    className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all min-h-[100px] sm:min-h-[120px] ${
+                      formData.userType === 'mentor'
+                        ? 'border-amber-600 bg-amber-50 shadow-md'
                         : 'border-gray-200 hover:border-amber-400 hover:bg-amber-50'
                     }`}
                   >
                     <div className="text-center">
-                      <div className={`w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center ${
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full mx-auto mb-2 sm:mb-3 flex items-center justify-center ${
                         formData.userType === 'mentor' ? 'bg-amber-100 text-amber-600' : 'bg-gray-100 text-gray-500'
                       }`}>
-                        <User className="w-6 h-6" />
+                        <User className="w-5 h-5 sm:w-6 sm:h-6" />
                       </div>
-                      <h4 className="font-semibold">Mentor</h4>
-                      <p className="text-sm text-gray-500 mt-1">I want to guide</p>
+                      <h4 className="font-semibold text-sm sm:text-base">Mentor</h4>
+                      <p className="text-xs sm:text-sm text-gray-500 mt-1">I want to guide</p>
                     </div>
                   </button>
                 </div>
               </div>
 
               {/* Name Fields */}
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-gray-700 mb-2 font-medium">First Name</label>
+                  <label className="block text-sm sm:text-base text-gray-700 mb-2 font-medium">First Name</label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <User className="w-5 h-5 text-gray-400" />
+                      <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                     </div>
                     <input
                       type="text"
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      className="w-full pl-9 sm:pl-10 pr-4 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition min-h-[44px]"
                       placeholder={formData.userType === 'mentor' ? "Dr. John" : "John"}
                       required
                     />
                   </div>
                 </div>
-                
+
                 <div>
-                  <label className="block text-gray-700 mb-2 font-medium">Last Name</label>
+                  <label className="block text-sm sm:text-base text-gray-700 mb-2 font-medium">Last Name</label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <User className="w-5 h-5 text-gray-400" />
+                      <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                     </div>
                     <input
                       type="text"
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      className="w-full pl-9 sm:pl-10 pr-4 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition min-h-[44px]"
                       placeholder={formData.userType === 'mentor' ? "Smith" : "Doe"}
                       required
                     />
@@ -371,41 +375,41 @@ const SignUpPage = () => {
               </div>
 
               {/* Email & Phone */}
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-gray-700 mb-2 font-medium">Email Address</label>
+                  <label className="block text-sm sm:text-base text-gray-700 mb-2 font-medium">Email Address</label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail className="w-5 h-5 text-gray-400" />
+                      <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                     </div>
                     <input
                       type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      className="w-full pl-9 sm:pl-10 pr-4 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition min-h-[44px]"
                       placeholder={
-                        formData.userType === 'mentor' 
-                          ? "faculty@adamasuniversity.ac.in" 
+                        formData.userType === 'mentor'
+                          ? "faculty@adamasuniversity.ac.in"
                           : "student@adamasuniversity.ac.in"
                       }
                       required
                     />
                   </div>
                 </div>
-                
+
                 <div>
-                  <label className="block text-gray-700 mb-2 font-medium">Phone Number</label>
+                  <label className="block text-sm sm:text-base text-gray-700 mb-2 font-medium">Phone Number</label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Smartphone className="w-5 h-5 text-gray-400" />
+                      <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                     </div>
                     <input
                       type="tel"
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      className="w-full pl-9 sm:pl-10 pr-4 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition min-h-[44px]"
                       placeholder="+91 98765 43210"
                       required
                     />
@@ -415,16 +419,16 @@ const SignUpPage = () => {
 
               {/* Department - Common for both */}
               <div>
-                <label className="block text-gray-700 mb-2 font-medium">Department/Faculty</label>
+                <label className="block text-sm sm:text-base text-gray-700 mb-2 font-medium">Department/Faculty</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Building className="w-5 h-5 text-gray-400" />
+                    <Building className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                   </div>
                   <select
                     name="department"
                     value={formData.department}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    className="w-full pl-9 sm:pl-10 pr-4 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition min-h-[44px] appearance-none bg-white"
                     required
                   >
                     <option value="">Select Department/Faculty</option>

@@ -44,13 +44,17 @@ const DashboardHome = () => {
     }
   });
 
+  // State for assigned mentor
+  const [mentor, setMentor] = useState(null);
+  const [mentorLoading, setMentorLoading] = useState(true);
+
   // 2. Fetch Data from Backend
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const response = await api.get('/users/profile');
         // Assuming backend sends structure: 
-        // { name, department, student_profile: { roll_no, semester, attendance: { percentage, attended, total, absent } } }
+        // { name, department, student_profile: { roll_no, semester, attendance: { percentage, attended, total, absent }, assigned_mentor } }
 
         const data = response.data;
         const profile = data.student_profile || {};
@@ -73,10 +77,21 @@ const DashboardHome = () => {
             absent: (att.total || 0) - (att.attended || 0)
           }
         });
+
+        // Fetch assigned mentor if available
+        if (profile.assigned_mentor) {
+          try {
+            const mentorResponse = await api.get(`/users/${profile.assigned_mentor}`);
+            setMentor(mentorResponse.data);
+          } catch (mentorError) {
+            console.error("Failed to fetch mentor data:", mentorError);
+          }
+        }
       } catch (error) {
         console.error("Failed to fetch user data:", error);
       } finally {
         setLoading(false);
+        setMentorLoading(false);
       }
     };
 
@@ -153,9 +168,9 @@ const DashboardHome = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-amber-50/30">
       {/* Top Navigation Bar */}
       <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-lg shadow-sm z-40 border-b border-gray-200">
-        <div className="px-6 py-4">
+        <div className="px-3 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
@@ -163,21 +178,21 @@ const DashboardHome = () => {
                 {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
 
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <img
                   src="/au_logo.png"
                   alt="Adamas University"
-                  className="h-10 w-auto"
+                  className="h-8 sm:h-10 w-auto"
                 />
-                <div>
-                  <h1 className="text-lg font-bold text-gray-800">Adamas University</h1>
-                  <p className="text-sm text-blue-600">Student Dashboard</p>
+                <div className="hidden sm:block">
+                  <h1 className="text-base sm:text-lg font-bold text-gray-800">Adamas University</h1>
+                  <p className="text-xs sm:text-sm text-blue-600">Student Dashboard</p>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center space-x-4">
-              <div className="hidden lg:flex items-center bg-white/60 backdrop-blur-sm px-4 py-2.5 rounded-xl border border-gray-200 shadow-sm w-80">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <div className="hidden lg:flex items-center bg-white/60 backdrop-blur-sm px-4 py-2.5 rounded-xl border border-gray-200 shadow-sm w-64 xl:w-80">
                 <Search className="w-4 h-4 text-gray-400 mr-3" />
                 <input
                   type="text"
@@ -186,19 +201,19 @@ const DashboardHome = () => {
                 />
               </div>
 
-              <button className="relative p-2.5 bg-white/60 backdrop-blur-sm rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all">
+              <button className="relative p-2 sm:p-2.5 bg-white/60 backdrop-blur-sm rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all">
                 <Bell className="w-5 h-5 text-gray-600" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
               </button>
 
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <div className="text-right hidden md:block">
-                  <h3 className="font-semibold text-gray-800">{user.name}</h3>
-                  <p className="text-sm text-gray-500">
+                  <h3 className="font-semibold text-gray-800 text-sm">{user.name}</h3>
+                  <p className="text-xs text-gray-500">
                     {user.registration_no || user.department || "Student"}
                   </p>
                 </div>
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-lg">
                   {getInitials(user.name)}
                 </div>
               </div>
@@ -207,26 +222,26 @@ const DashboardHome = () => {
         </div>
       </nav>
 
-      <div className="flex pt-20">
+      <div className="flex pt-16 sm:pt-20">
         <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
-        <main className="flex-1 p-6 lg:p-8">
+        <main className={`flex-1 transition-all duration-300 p-3 sm:p-6 lg:p-8 ${sidebarOpen ? 'lg:ml-72' : 'lg:ml-20'}`}>
           <div className="max-w-7xl mx-auto">
             {/* Welcome Section */}
-            <div className="mb-8">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="mb-6 sm:mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">
                     Welcome back, <span className="text-blue-700">{user.name.split(' ')[0]}!</span> 👋
                   </h1>
-                  <p className="text-gray-600">
+                  <p className="text-sm sm:text-base text-gray-600">
                     Registration No: <span className="font-mono font-medium text-gray-800">{user.registration_no}</span>
                   </p>
                 </div>
                 {/* Semester Badge */}
-                <div className="flex items-center space-x-2 bg-white border border-blue-100 shadow-sm px-4 py-2 rounded-xl">
-                  <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
-                    <Award className="w-5 h-5" />
+                <div className="flex items-center space-x-2 bg-white border border-blue-100 shadow-sm px-3 sm:px-4 py-2 rounded-xl">
+                  <div className="p-1.5 sm:p-2 bg-blue-50 rounded-lg text-blue-600">
+                    <Award className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 font-medium">Current Semester</p>
@@ -237,28 +252,28 @@ const DashboardHome = () => {
             </div>
 
             {/* Stats Grid - Now Dynamic */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
               {stats.map((stat, idx) => (
                 <div
                   key={idx}
-                  className={`bg-gradient-to-br from-white to-gray-50 border border-gray-200 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${stat.status === 'warning' ? 'border-l-4 border-l-amber-500' :
+                  className={`bg-gradient-to-br from-white to-gray-50 border border-gray-200 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${stat.status === 'warning' ? 'border-l-4 border-l-amber-500' :
                       stat.status === 'good' ? 'border-l-4 border-l-green-500' :
                         'border-l-4 border-l-blue-500'
                     }`}
                 >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`p-3 rounded-xl bg-${stat.color}-100 text-${stat.color}-600`}>
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
+                    <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl bg-${stat.color}-100 text-${stat.color}-600`}>
                       {stat.icon}
                     </div>
-                    <span className={`text-xs font-semibold px-3 py-1 rounded-full ${stat.status === 'warning' ? 'bg-amber-100 text-amber-700' :
+                    <span className={`text-xs font-semibold px-2 sm:px-3 py-1 rounded-full ${stat.status === 'warning' ? 'bg-amber-100 text-amber-700' :
                         stat.status === 'good' ? 'bg-green-100 text-green-700' :
                           'bg-blue-100 text-blue-700'
                       }`}>
                       {stat.sub}
                     </span>
                   </div>
-                  <h3 className="text-4xl font-bold text-gray-800 mb-1">{stat.value}</h3>
-                  <p className="text-gray-600 font-medium">{stat.label}</p>
+                  <h3 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-1">{stat.value}</h3>
+                  <p className="text-sm sm:text-base text-gray-600 font-medium">{stat.label}</p>
 
                   {/* Progress Bar (Only for percentage values) */}
                   {stat.value.includes('%') && (
@@ -278,101 +293,126 @@ const DashboardHome = () => {
               ))}
             </div>
 
-            {/* Main Content Grid (Rest remains mostly same) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 sm:gap-8">
               {/* Left Column */}
-              <div className="lg:col-span-2 space-y-8">
+              <div className="xl:col-span-2 space-y-6 sm:space-y-8">
                 {/* Mentor Card */}
-                <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-2xl p-1 shadow-2xl">
-                  <div className="bg-white rounded-[18px] p-6">
-                    <div className="flex items-center justify-between mb-6">
+                <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-xl sm:rounded-2xl p-0.5 sm:p-1 shadow-2xl">
+                  <div className="bg-white rounded-[14px] sm:rounded-[18px] p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6">
                       <div>
-                        <h3 className="text-lg font-bold text-gray-800 flex items-center">
-                          <Users className="w-5 h-5 text-blue-600 mr-2" />
+                        <h3 className="text-base sm:text-lg font-bold text-gray-800 flex items-center">
+                          <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2" />
                           Your Mentor
                         </h3>
-                        <p className="text-gray-500 text-sm mt-1">Assigned faculty mentor</p>
+                        <p className="text-gray-500 text-xs sm:text-sm mt-1">Assigned faculty mentor</p>
                       </div>
-                      <div className="flex items-center space-x-2 bg-green-50 text-green-700 px-3 py-1.5 rounded-full">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span className="text-sm font-medium">Online Now</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-4 p-4 bg-blue-50 rounded-xl mb-6">
-                      <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white text-xl font-bold">
-                        SC
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-xl font-bold text-gray-800">Dr. S. Chatterjee</h4>
-                        <p className="text-gray-600">Professor, Computer Science Department</p>
-                        <div className="flex items-center space-x-4 mt-2">
-                          <span className="text-sm text-blue-600 font-medium">⭐ 4.8/5 Rating</span>
-                          <span className="text-sm text-gray-500">📅 Next session: Tomorrow</span>
+                      {mentor && (
+                        <div className="flex items-center space-x-2 bg-green-50 text-green-700 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full mt-2 sm:mt-0">
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                          <span className="text-xs sm:text-sm font-medium">Online Now</span>
                         </div>
-                      </div>
+                      )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <Link
-                        to="/dashboard/chat"
-                        className="group bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-4 rounded-xl text-center transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl flex items-center justify-center space-x-2"
-                      >
-                        <MessageSquare className="w-4 h-4" />
-                        <span>Send Message</span>
-                        <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                      <button className="group bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold py-3 px-4 rounded-xl text-center transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg flex items-center justify-center space-x-2">
-                        <Video className="w-4 h-4" />
-                        <span>Schedule Call</span>
-                      </button>
-                    </div>
+                    {mentorLoading ? (
+                      <div className="flex items-center justify-center p-6 sm:p-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      </div>
+                    ) : mentor ? (
+                      <>
+                        <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 p-3 sm:p-4 bg-blue-50 rounded-xl mb-4 sm:mb-6">
+                          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white text-lg sm:text-xl font-bold shadow-lg shrink-0">
+                            {getInitials(mentor.name)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-lg sm:text-xl font-bold text-gray-800 truncate">{mentor.name}</h4>
+                            <p className="text-sm text-gray-600 truncate">
+                              {mentor.mentor_profile?.designation || 'Faculty'}, {mentor.department || 'Department'}
+                            </p>
+                            {mentor.mentor_profile?.expertise && (
+                              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                                {mentor.mentor_profile.expertise.slice(0, 3).map((exp, idx) => (
+                                  <span key={idx} className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                    {exp}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                          <Link
+                            to="/dashboard/chat"
+                            className="group bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg sm:rounded-xl text-center transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl flex items-center justify-center space-x-2"
+                          >
+                            <MessageSquare className="w-4 h-4" />
+                            <span className="text-sm sm:text-base">Send Message</span>
+                            <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          </Link>
+                          <button className="group bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg sm:rounded-xl text-center transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg flex items-center justify-center space-x-2">
+                            <Video className="w-4 h-4" />
+                            <span className="text-sm sm:text-base">Schedule Call</span>
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center p-4 sm:p-6">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                          <Users className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
+                        </div>
+                        <h4 className="text-base sm:text-lg font-semibold text-gray-700 mb-2">No Mentor Assigned</h4>
+                        <p className="text-gray-500 text-xs sm:text-sm mb-4">You haven't been assigned a mentor yet. Contact your department coordinator.</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 {/* Upcoming Classes - Keep Static for now or connect to Schedule API */}
-                <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-lg">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-bold text-gray-800 flex items-center">
-                      <Calendar className="w-5 h-5 text-blue-600 mr-2" />
+                <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-lg">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6">
+                    <h3 className="text-base sm:text-lg font-bold text-gray-800 flex items-center">
+                      <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2" />
                       Today's Schedule
                     </h3>
-                    <Link to="/dashboard/schedule" className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center">
+                    <Link to="/dashboard/schedule" className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center mt-1 sm:mt-0">
                       View Full Schedule
                       <ChevronRight className="w-4 h-4 ml-1" />
                     </Link>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {upcomingClasses.map((cls, idx) => (
                       <div
                         key={idx}
-                        className="group p-4 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-300"
+                        className="group p-3 sm:p-4 rounded-lg sm:rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-300"
                       >
                         <div className="flex items-center justify-between">
-                          <div className="flex items-start space-x-4">
-                            <div className={`p-3 rounded-xl ${cls.status === 'lab' ? 'bg-purple-100 text-purple-600' :
+                          <div className="flex items-start space-x-3 sm:space-x-4">
+                            <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl ${cls.status === 'lab' ? 'bg-purple-100 text-purple-600' :
                                 cls.status === 'workshop' ? 'bg-amber-100 text-amber-600' :
                                   'bg-blue-100 text-blue-600'
                               }`}>
-                              <Clock className="w-5 h-5" />
+                              <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
                             </div>
-                            <div>
+                            <div className="min-w-0">
                               <div className="flex items-center space-x-2 mb-1">
-                                <span className="text-sm font-bold text-blue-600">{cls.time}</span>
-                                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${cls.status === 'lab' ? 'bg-purple-100 text-purple-700' :
+                                <span className="text-xs sm:text-sm font-bold text-blue-600">{cls.time}</span>
+                                <span className={`text-xs font-medium px-1.5 sm:px-2 py-0.5 rounded-full ${cls.status === 'lab' ? 'bg-purple-100 text-purple-700' :
                                     cls.status === 'workshop' ? 'bg-amber-100 text-amber-700' :
                                       'bg-blue-100 text-blue-700'
                                   }`}>
                                   {cls.status}
                                 </span>
                               </div>
-                              <h4 className="font-bold text-gray-800">{cls.title}</h4>
-                              <p className="text-sm text-gray-600">{cls.room} • {cls.professor}</p>
+                              <h4 className="text-sm sm:text-base font-bold text-gray-800 truncate">{cls.title}</h4>
+                              <p className="text-xs sm:text-sm text-gray-600">{cls.room} • {cls.professor}</p>
                             </div>
                           </div>
-                          <button className="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition">
-                            <BookOpen className="w-5 h-5" />
+                          <button className="p-1.5 sm:p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition">
+                            <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
                           </button>
                         </div>
                       </div>
@@ -382,76 +422,76 @@ const DashboardHome = () => {
               </div>
 
               {/* Right Column */}
-              <div className="space-y-8">
+              <div className="space-y-6 sm:space-y-8">
                 {/* Pending Tasks */}
-                <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-lg">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-bold text-gray-800 flex items-center">
-                      <Target className="w-5 h-5 text-amber-600 mr-2" />
+                <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-lg">
+                  <div className="flex items-center justify-between mb-4 sm:mb-6">
+                    <h3 className="text-base sm:text-lg font-bold text-gray-800 flex items-center">
+                      <Target className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 mr-2" />
                       Pending Tasks
                     </h3>
-                    <span className="text-sm font-bold text-white bg-amber-500 px-2.5 py-1 rounded-full">
+                    <span className="text-xs sm:text-sm font-bold text-white bg-amber-500 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full">
                       {pendingTasks.length}
                     </span>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {pendingTasks.map((task, idx) => (
                       <div
                         key={idx}
-                        className="p-4 rounded-xl border border-gray-200 hover:border-amber-300 hover:bg-amber-50/30 transition-all"
+                        className="p-3 sm:p-4 rounded-lg sm:rounded-xl border border-gray-200 hover:border-amber-300 hover:bg-amber-50/30 transition-all"
                       >
-                        <div className="flex items-start justify-between mb-2">
-                          <h4 className="font-semibold text-gray-800">{task.title}</h4>
-                          <span className={`text-xs font-bold px-2 py-1 rounded-full ${task.priority === 'high' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+                        <div className="flex items-start justify-between mb-1 sm:mb-2">
+                          <h4 className="text-sm sm:text-base font-semibold text-gray-800 line-clamp-1">{task.title}</h4>
+                          <span className={`text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded-full ${task.priority === 'high' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
                             }`}>
                             {task.priority}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600 mb-3">{task.subject}</p>
+                        <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">{task.subject}</p>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-500 flex items-center">
+                          <span className="text-xs sm:text-sm text-gray-500 flex items-center">
                             <Clock className="w-3 h-3 mr-1" />
                             Due: {task.due}
                           </span>
-                          <button className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center">
+                          <button className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center">
                             Mark as done
-                            <CheckCircle className="w-4 h-4 ml-1" />
+                            <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
                           </button>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <button className="w-full mt-6 py-3 text-center border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50/50 rounded-xl text-gray-600 hover:text-blue-700 transition-all font-medium">
+                  <button className="w-full mt-4 sm:mt-6 py-2.5 sm:py-3 text-center border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50/50 rounded-lg sm:rounded-xl text-sm text-gray-600 hover:text-blue-700 transition-all font-medium">
                     + Add New Task
                   </button>
                 </div>
 
                 {/* Recent Activity */}
-                <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-lg">
-                  <h3 className="text-lg font-bold text-gray-800 flex items-center mb-6">
-                    <BarChart3 className="w-5 h-5 text-purple-600 mr-2" />
+                <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-lg">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-800 flex items-center mb-4 sm:mb-6">
+                    <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 mr-2" />
                     Recent Activity
                   </h3>
 
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {recentActivities.map((activity, idx) => (
-                      <div key={idx} className="flex items-start space-x-3">
-                        <div className={`p-2 rounded-lg ${activity.type === 'mentor' ? 'bg-blue-100 text-blue-600' :
+                      <div key={idx} className="flex items-start space-x-2 sm:space-x-3">
+                        <div className={`p-1.5 sm:p-2 rounded-lg ${activity.type === 'mentor' ? 'bg-blue-100 text-blue-600' :
                             activity.type === 'submission' ? 'bg-green-100 text-green-600' :
                               'bg-purple-100 text-purple-600'
                           }`}>
-                          {activity.type === 'mentor' ? <MessageSquare className="w-4 h-4" /> :
-                            activity.type === 'submission' ? <FileText className="w-4 h-4" /> :
-                              <Download className="w-4 h-4" />}
+                          {activity.type === 'mentor' ? <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4" /> :
+                            activity.type === 'submission' ? <FileText className="w-3 h-3 sm:w-4 sm:h-4" /> :
+                              <Download className="w-3 h-3 sm:w-4 sm:h-4" />}
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-800">{activity.action}</p>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs sm:text-sm font-medium text-gray-800">{activity.action}</p>
                           {activity.mentor && (
                             <p className="text-xs text-gray-500">with {activity.mentor}</p>
                           )}
-                          <p className="text-xs text-gray-400 mt-1">{activity.time}</p>
+                          <p className="text-xs text-gray-400 mt-0.5 sm:mt-1">{activity.time}</p>
                         </div>
                       </div>
                     ))}
@@ -459,40 +499,40 @@ const DashboardHome = () => {
 
                   <Link
                     to="/dashboard/activity"
-                    className="mt-6 block text-center text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center"
+                    className="mt-4 sm:mt-6 block text-center text-xs sm:text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center"
                   >
                     View All Activity
-                    <ChevronRight className="w-4 h-4 ml-1" />
+                    <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
                   </Link>
                 </div>
 
                 {/* Quick Actions */}
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-6">
-                  <h3 className="text-lg font-bold text-gray-800 mb-4">Quick Actions</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button className="p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all text-center group">
-                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-2 group-hover:bg-blue-200 transition">
-                        <BookOpen className="w-5 h-5 text-blue-600" />
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4">Quick Actions</h3>
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                    <button className="p-3 sm:p-4 bg-white rounded-lg sm:rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all text-center group">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-1.5 sm:mb-2 group-hover:bg-blue-200 transition">
+                        <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                       </div>
-                      <span className="text-sm font-medium text-gray-700">Course Materials</span>
+                      <span className="text-xs sm:text-sm font-medium text-gray-700">Course Materials</span>
                     </button>
-                    <button className="p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all text-center group">
-                      <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center mx-auto mb-2 group-hover:bg-amber-200 transition">
-                        <Users className="w-5 h-5 text-amber-600" />
+                    <button className="p-3 sm:p-4 bg-white rounded-lg sm:rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all text-center group">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-amber-100 rounded-lg flex items-center justify-center mx-auto mb-1.5 sm:mb-2 group-hover:bg-amber-200 transition">
+                        <Users className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
                       </div>
-                      <span className="text-sm font-medium text-gray-700">Find Mentor</span>
+                      <span className="text-xs sm:text-sm font-medium text-gray-700">Find Mentor</span>
                     </button>
-                    <button className="p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all text-center group">
-                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-2 group-hover:bg-green-200 transition">
-                        <FileText className="w-5 h-5 text-green-600" />
+                    <button className="p-3 sm:p-4 bg-white rounded-lg sm:rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all text-center group">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-1.5 sm:mb-2 group-hover:bg-green-200 transition">
+                        <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
                       </div>
-                      <span className="text-sm font-medium text-gray-700">Assignments</span>
+                      <span className="text-xs sm:text-sm font-medium text-gray-700">Assignments</span>
                     </button>
-                    <button className="p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all text-center group">
-                      <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-2 group-hover:bg-purple-200 transition">
-                        <BarChart3 className="w-5 h-5 text-purple-600" />
+                    <button className="p-3 sm:p-4 bg-white rounded-lg sm:rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all text-center group">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-1.5 sm:mb-2 group-hover:bg-purple-200 transition">
+                        <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                       </div>
-                      <span className="text-sm font-medium text-gray-700">Grades</span>
+                      <span className="text-xs sm:text-sm font-medium text-gray-700">Grades</span>
                     </button>
                   </div>
                 </div>
