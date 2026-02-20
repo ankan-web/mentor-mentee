@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import api from '../services/api';
+import { Link, useNavigate } from 'react-router-dom';
+import api, { setAuthToken } from '../services/api';
 import {
   Search,
   Bell,
@@ -20,13 +20,17 @@ import {
   Video,
   Download,
   CheckCircle,
-  AlertCircle // Added for attendance warning
+  AlertCircle,
+  LogOut,
+  User
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 
 const DashboardHome = () => {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   // 1. Expanded State to store detailed User Data
   const [user, setUser] = useState({
@@ -102,6 +106,15 @@ const DashboardHome = () => {
     return name
       ? name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
       : 'U';
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    setAuthToken(null); // Clear token from localStorage and axios headers
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userRole');
+    setShowProfileMenu(false);
+    navigate('/login');
   };
 
   // 3. Dynamic Stats Calculation
@@ -206,16 +219,46 @@ const DashboardHome = () => {
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
               </button>
 
-              <div className="flex items-center space-x-2 sm:space-x-3">
-                <div className="text-right hidden md:block">
-                  <h3 className="font-semibold text-gray-800 text-sm">{user.name}</h3>
-                  <p className="text-xs text-gray-500">
-                    {user.registration_no || user.department || "Student"}
-                  </p>
-                </div>
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-lg">
-                  {getInitials(user.name)}
-                </div>
+              {/* Profile Menu */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  className="flex items-center space-x-2 sm:space-x-3 hover:bg-gray-50 rounded-xl p-1.5 transition-colors"
+                >
+                  <div className="text-right hidden md:block">
+                    <h3 className="font-semibold text-gray-800 text-sm">{user.name}</h3>
+                    <p className="text-xs text-gray-500">
+                      {user.registration_no || user.department || "Student"}
+                    </p>
+                  </div>
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-lg">
+                    {getInitials(user.name)}
+                  </div>
+                </button>
+
+                {/* Dropdown Menu */}
+                {showProfileMenu && (
+                  <>
+                    {/* Backdrop to close menu when clicking outside */}
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setShowProfileMenu(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
+                      <div className="px-4 py-2 border-b border-gray-100">
+                        <p className="font-semibold text-gray-800 text-sm">{user.name}</p>
+                        <p className="text-xs text-gray-500">{user.email || user.registration_no}</p>
+                      </div>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center space-x-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

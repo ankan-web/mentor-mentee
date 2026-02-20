@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Calendar, 
   Clock, 
@@ -14,12 +15,63 @@ import {
   User,
   Mail,
   Phone,
-  MessageSquare
+  MessageSquare,
+  LogOut
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
+import api, { setAuthToken } from '../services/api';
 
 const ScheduleMeeting = () => {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  // User data state - fetched from API
+  const [user, setUser] = useState({
+    name: localStorage.getItem('userName') || 'Student',
+    department: 'Computer Science',
+    roll_no: ''
+  });
+
+  // Fetch user data from API
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await api.get('/users/profile');
+        const data = response.data;
+        const profile = data.student_profile || {};
+
+        setUser({
+          name: data.name || 'Student',
+          department: data.department || 'Computer Science',
+          roll_no: profile.roll_no || ''
+        });
+
+        // Update localStorage for consistency
+        localStorage.setItem('userName', data.name);
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  // Get initials from name
+  const getInitials = (name) => {
+    return name
+      ? name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+      : 'U';
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    setAuthToken(null);
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userRole');
+    setShowProfileMenu(false);
+    navigate('/login');
+  };
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [meetingType, setMeetingType] = useState('Academic Review');
@@ -99,6 +151,46 @@ const ScheduleMeeting = () => {
                   <p className="text-sm text-blue-600">Schedule Meeting</p>
                 </div>
               </div>
+            </div>
+
+            {/* Profile Menu */}
+            <div className="relative">
+              <button
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className="flex items-center space-x-3 hover:bg-gray-50 rounded-xl p-1.5 transition-colors"
+              >
+                <div className="text-right hidden md:block">
+                  <h3 className="font-semibold text-gray-800 text-sm">{user.name}</h3>
+                  <p className="text-xs text-gray-500">{user.department || 'Department'}</p>
+                </div>
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                  {getInitials(user.name)}
+                </div>
+              </button>
+
+              {/* Dropdown Menu */}
+              {showProfileMenu && (
+                <>
+                  {/* Backdrop to close menu when clicking outside */}
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setShowProfileMenu(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
+                    <div className="px-4 py-2 border-b border-gray-100">
+                      <p className="font-semibold text-gray-800 text-sm">{user.name}</p>
+                      <p className="text-xs text-gray-500">{user.roll_no || 'Student'}</p>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center space-x-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </nav>
@@ -202,11 +294,44 @@ const ScheduleMeeting = () => {
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            <div className="hidden md:flex items-center space-x-2 bg-blue-50 text-blue-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full">
-              <GraduationCap className="w-4 h-4" />
-              <span className="text-xs sm:text-sm font-medium">Dr. S. Chatterjee • Mentor</span>
-            </div>
+          {/* Profile Menu */}
+          <div className="relative">
+            <button
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              className="flex items-center space-x-2 sm:space-x-3 hover:bg-gray-50 rounded-xl p-1.5 transition-colors"
+            >
+              <div className="text-right hidden md:block">
+                <h3 className="font-semibold text-gray-800 text-sm">{user.name}</h3>
+                <p className="text-xs text-gray-500">{user.department || 'Department'}</p>
+              </div>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-lg">
+                {getInitials(user.name)}
+              </div>
+            </button>
+
+            {/* Dropdown Menu */}
+            {showProfileMenu && (
+              <>
+                {/* Backdrop to close menu when clicking outside */}
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowProfileMenu(false)}
+                />
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
+                  <div className="px-4 py-2 border-b border-gray-100">
+                    <p className="font-semibold text-gray-800 text-sm">{user.name}</p>
+                    <p className="text-xs text-gray-500">{user.roll_no || 'Student'}</p>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center space-x-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </nav>
