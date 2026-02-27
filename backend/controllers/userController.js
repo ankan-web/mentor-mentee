@@ -144,6 +144,36 @@ export const loginWithUMS = async (req, res) => {
     });
   }
 
+  // Check for admin test credentials first
+  if (registration_no === 'admin' && password === 'admin123') {
+    const admin = await User.findOne({ email: 'admin@adamas.ac.in' });
+    if (admin) {
+      return res.json({
+        _id: admin._id,
+        name: admin.name,
+        email: admin.email,
+        role: admin.role,
+        department: admin.department,
+        token: generateToken(admin.id),
+      });
+    }
+  }
+
+  // Check for mentor test credentials
+  if (registration_no === 'mentor' && password === 'mentor123') {
+    const mentor = await User.findOne({ email: 'mentor@adamas.ac.in' });
+    if (mentor) {
+      return res.json({
+        _id: mentor._id,
+        name: mentor.name,
+        email: mentor.email,
+        role: mentor.role,
+        department: mentor.department,
+        token: generateToken(mentor.id),
+      });
+    }
+  }
+
   // DEV MODE or when Chrome is not available: Allow mock login for testing
   if (process.env.NODE_ENV === 'development' || process.env.DISABLE_UMS_SCRAPER === 'true' || registration_no === 'test' || registration_no === 'AU/2022/TEST') {
     console.log('Using mock login for:', registration_no);

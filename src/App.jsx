@@ -9,6 +9,8 @@ import LoginPage from './pages/LoginPage';
 import ChatInterface from './pages/ChatInterface';
 import ScheduleMeeting from './pages/ScheduleMeeting';
 import Academics from './pages/Academics';
+import AdminDashboard from './pages/AdminDashboard';
+import MentorDashboard from './pages/MentorDashboard';
 
 const App = () => {
 
@@ -81,6 +83,16 @@ const App = () => {
         <Route
           path="/onboarding/academics"
           element={user ? <Academics /> : <Navigate to="/login" />}
+        />
+
+        <Route
+          path="/admin"
+          element={user ? <AdminDashboard /> : <Navigate to="/login" />}
+        />
+
+        <Route
+          path="/mentor"
+          element={user ? <MentorDashboard /> : <Navigate to="/login" />}
         />
 
         <Route path="*" element={<Navigate to="/" replace />} />
